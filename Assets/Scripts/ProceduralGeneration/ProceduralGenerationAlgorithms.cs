@@ -1,8 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ProceduralGeneration.V2
+namespace ProceduralGeneration
 {
     public static class ProceduralGenerationAlgorithms
     {
