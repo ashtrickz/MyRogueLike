@@ -11,11 +11,11 @@ using Random = UnityEngine.Random;
 
 public class SimpleRandomWalkGenerator : AbstractDungeonGenerator
 {
-    [Space, SerializeField] protected SimpleWalkGenerationData SimpleWalkGenerationData;
+    [Space, SerializeField] protected SimpleWalkGenerationData RandomWalkData;
     
     protected override void RunProceduralGeneration()
     {
-        var floorPositions = RunRandomWalk(SimpleWalkGenerationData, StartPosition);
+        var floorPositions = RunRandomWalk(RandomWalkData, StartPosition);
         TilemapVisualiser.Clear();
         TilemapVisualiser.PaintFloorTiles(floorPositions);
         WallGenerator.GenerateWalls(floorPositions, TilemapVisualiser);

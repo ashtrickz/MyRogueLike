@@ -128,7 +128,7 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkGenerator
         {
             if (roomFloors.Contains(position) == false)
             {
-                var room = RunRandomWalk(SimpleWalkGenerationData, position);
+                var room = RunRandomWalk(RandomWalkData, position);
                 roomFloors.UnionWith(room);
             }
         }
@@ -163,7 +163,7 @@ public class CorridorFirstDungeonGenerator : SimpleRandomWalkGenerator
 
         foreach (var roomPosition in roomsToCreate)
         {
-            var roomFloor = RunRandomWalk(SimpleWalkGenerationData, roomPosition);
+            var roomFloor = RunRandomWalk(RandomWalkData, roomPosition);
             roomPositions.UnionWith(roomFloor);
         }
 

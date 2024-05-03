@@ -75,7 +75,7 @@ namespace ProceduralGeneration.V2
 
         private static void SplitVertically(int minWidth, Queue<BoundsInt> roomsQueue, BoundsInt room)
         {
-            var xSplit = Random.Range(minWidth, room.size.x - minWidth);
+            var xSplit = Random.Range(1, room.size.y); //Random.Range(minWidth, room.size.x - minWidth);
             BoundsInt room1 = new(room.min, new Vector3Int(xSplit, room.size.y, room.size.z));
             BoundsInt room2 = new(new Vector3Int(room.min.x + xSplit, room.min.y, room.min.z), 
                 new Vector3Int(room.size.x - xSplit, room.size.y, room.size.z));
@@ -86,7 +86,7 @@ namespace ProceduralGeneration.V2
 
         private static void SplitHorizontally(int minHeight, Queue<BoundsInt> roomsQueue, BoundsInt room)
         {
-            var ySplit = Random.Range(minHeight, room.size.y - minHeight); // minHeight, Room.size.y - minHeight
+            var ySplit = Random.Range(1, room.size.y); //Random.Range(minHeight, room.size.y - minHeight); // minHeight, Room.size.y - minHeight
             BoundsInt room1 = new(room.min, new Vector3Int(room.size.x, ySplit, room.size.z));
             BoundsInt room2 = new(new Vector3Int(room.min.x, room.min.y + ySplit, room.min.z),
                 new Vector3Int(room.size.x, room.size.y - ySplit, room.size.z));
@@ -100,12 +100,32 @@ namespace ProceduralGeneration.V2
     {
         public static readonly List<Vector2Int> CardinalDirectionsList = new()
         {
-            new Vector2Int(0, 1), // Up
-            new Vector2Int(1, 0), // Right
-            new Vector2Int(0, -1), // Down
-            new Vector2Int(-1, 0) // Left
+            new Vector2Int(0, 1),   // Up
+            new Vector2Int(1, 0),   // Right
+            new Vector2Int(0, -1),  // Down
+            new Vector2Int(-1, 0)   // Left
+        };        
+        
+        public static readonly List<Vector2Int> DiagonalDirectionsList = new()
+        {
+            new Vector2Int(1, 1),   // Up-Right
+            new Vector2Int(1, -1),  // Down-Right
+            new Vector2Int(-1, -1), // Down-Left    
+            new Vector2Int(-1, 1)   // Up-Left
         };
 
+        public static readonly List<Vector2Int> EightDirectionsList = new()
+        {
+            new Vector2Int(0, 1),   // Up
+            new Vector2Int(1, 1),   // Up-Right
+            new Vector2Int(1, 0),   // Right
+            new Vector2Int(1, -1),  // Down-Right
+            new Vector2Int(0, -1),  // Down
+            new Vector2Int(-1, -1), // Down-Left 
+            new Vector2Int(-1, 0),  // Left
+            new Vector2Int(-1, 1)   // Up-Left
+        };
+        
         public static Vector2Int GetRandomCardinalDirection() =>
             CardinalDirectionsList[UnityEngine.Random.Range(0, CardinalDirectionsList.Count)];
     }
