@@ -13,6 +13,8 @@ namespace ProceduralGeneration
 
         [SerializeField] private bool useRandomWalk = false;
 
+        [SerializeField] private bool useSquareShapeGeneration = false;
+        
         protected override void RunProceduralGeneration()
         {
             GenerateRooms();
@@ -21,8 +23,11 @@ namespace ProceduralGeneration
         private void GenerateRooms()
         {
             var roomsList = ProceduralGenerationAlgorithms.BinarySpacePartitioning(
-                new BoundsInt((Vector3Int) StartPosition, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minRoomWidth,
-                minRoomHeight);
+                new BoundsInt((Vector3Int) StartPosition, new Vector3Int(dungeonWidth, dungeonHeight, 0)),
+                minRoomWidth,
+                minRoomHeight,
+                useSquareShapeGeneration
+                );
 
             HashSet<Vector2Int> floor = new();
 

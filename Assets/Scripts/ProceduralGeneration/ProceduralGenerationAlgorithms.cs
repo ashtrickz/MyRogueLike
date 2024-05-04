@@ -37,7 +37,7 @@ namespace ProceduralGeneration
             return corridor;
         }
 
-        public static List<BoundsInt> BinarySpacePartitioning(BoundsInt spaceToSplit, int minWidth, int minHeight)
+        public static List<BoundsInt> BinarySpacePartitioning(BoundsInt spaceToSplit, int minWidth, int minHeight, bool squareShapedGeneration)
         {
             Queue<BoundsInt> roomsQueue = new();
             List<BoundsInt> roomsList = new();
@@ -51,18 +51,18 @@ namespace ProceduralGeneration
                     if (Random.value < .5f)
                     {
                         if (room.size.y >= minHeight * 2)
-                            SplitHorizontally(minHeight, roomsQueue, room);
+                            SplitHorizontally(minHeight, roomsQueue, room, squareShapedGeneration);
                         else if (room.size.x >= minWidth * 2)
-                            SplitVertically(minWidth, roomsQueue, room);
+                            SplitVertically(minWidth, roomsQueue, room, squareShapedGeneration);
                         else if (room.size.x >= minWidth && room.size.y >= minHeight)
                             roomsList.Add(room);
                     }
                     else
                     { 
                         if (room.size.x >= minWidth * 2)
-                            SplitVertically(minWidth, roomsQueue, room);
+                            SplitVertically(minWidth, roomsQueue, room, squareShapedGeneration);
                         else if (room.size.y >= minHeight * 2)
-                            SplitHorizontally(minHeight, roomsQueue, room);
+                            SplitHorizontally(minHeight, roomsQueue, room, squareShapedGeneration);
                         else if (room.size.x >= minWidth && room.size.y >= minHeight)
                             roomsList.Add(room);
                     }
@@ -72,9 +72,9 @@ namespace ProceduralGeneration
             return roomsList;
         }
 
-        private static void SplitVertically(int minWidth, Queue<BoundsInt> roomsQueue, BoundsInt room)
+        private static void SplitVertically(int minWidth, Queue<BoundsInt> roomsQueue, BoundsInt room, bool squareShapedGeneration)
         {
-            var xSplit = Random.Range(1, room.size.y); //Random.Range(minWidth, room.size.x - minWidth);
+            var xSplit = squareShapedGeneration ? Random.Range(minWidth, room.size.x - minWidth) : Random.Range(1, room.size.y); //Random.Range(minWidth, room.size.x - minWidth);
             BoundsInt room1 = new(room.min, new Vector3Int(xSplit, room.size.y, room.size.z));
             BoundsInt room2 = new(new Vector3Int(room.min.x + xSplit, room.min.y, room.min.z), 
                 new Vector3Int(room.size.x - xSplit, room.size.y, room.size.z));
@@ -83,9 +83,9 @@ namespace ProceduralGeneration
             roomsQueue.Enqueue(room2);
         }
 
-        private static void SplitHorizontally(int minHeight, Queue<BoundsInt> roomsQueue, BoundsInt room)
+        private static void SplitHorizontally(int minHeight, Queue<BoundsInt> roomsQueue, BoundsInt room, bool squareShapedGeneration)
         {
-            var ySplit = Random.Range(1, room.size.y); //Random.Range(minHeight, room.size.y - minHeight); // minHeight, Room.size.y - minHeight
+            var ySplit = squareShapedGeneration ? Random.Range(minHeight, room.size.y - minHeight) : Random.Range(1, room.size.y); //Random.Range(minHeight, room.size.y - minHeight); // minHeight, Room.size.y - minHeight
             BoundsInt room1 = new(room.min, new Vector3Int(room.size.x, ySplit, room.size.z));
             BoundsInt room2 = new(new Vector3Int(room.min.x, room.min.y + ySplit, room.min.z),
                 new Vector3Int(room.size.x, room.size.y - ySplit, room.size.z));
