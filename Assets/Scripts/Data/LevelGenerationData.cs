@@ -11,10 +11,11 @@ public class LevelGenerationData : SerializedScriptableObject
 {
     public readonly Dictionary<int, RoomData> RoomsList = new();
 
-    private List<GameObject> _identifiersList = new();
-    private bool _roomIdentifierOn = false;
-
     [SerializeField] private GameObject identifierPrefab;
+
+    private List<GameObject> _identifiersList = new();
+    private GameObject _parentIdentifier;
+    private bool _roomIdentifierOn = false;
 
     public struct RoomData
     {
@@ -31,7 +32,7 @@ public class LevelGenerationData : SerializedScriptableObject
             ColorId = Random.ColorHSV();
         }
     }
-    
+
     [Button]
     private void ToggleRoomsIdentifiers()
     {
@@ -43,16 +44,21 @@ public class LevelGenerationData : SerializedScriptableObject
         }
         else
         {
+            _parentIdentifier = new GameObject("Identifiers");
+            _identifiersList.Add(_parentIdentifier);
+
             foreach (var roomData in RoomsList)
             {
-                var identifier = Instantiate(identifierPrefab);
+                var identifier = Instantiate(identifierPrefab, _parentIdentifier.transform);
                 identifier.transform.position =
                     new Vector3(roomData.Value.Center.x + .5f, roomData.Value.Center.y + .5f, 0);
                 identifier.GetComponent<SpriteRenderer>().color = roomData.Value.ColorId;
                 var text = identifier.GetComponentInChildren<TMP_Text>();
                 text.text = roomData.Key.ToString();
-                
-                text.color = (roomData.Value.ColorId.r + roomData.Value.ColorId.g + roomData.Value.ColorId.b) / 3 > 0.4 ? Color.black : Color.white;
+
+                text.color = (roomData.Value.ColorId.r + roomData.Value.ColorId.g + roomData.Value.ColorId.b) / 3 > 0.4
+                    ? Color.black
+                    : Color.white;
 
                 _identifiersList.Add(identifier);
             }
