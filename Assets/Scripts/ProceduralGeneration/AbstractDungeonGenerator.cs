@@ -1,5 +1,6 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.WSA;
 
 namespace ProceduralGeneration
 {
@@ -9,12 +10,15 @@ namespace ProceduralGeneration
         [SerializeField] protected TilemapVisualiser TilemapVisualiser = null;
         [SerializeField] protected Vector2Int StartPosition = Vector2Int.zero;
 
-        [Button, LabelText("Generate")]
+        [Button]
         public void GenerateDungeon()
         {
-            TilemapVisualiser.Clear();
+            ClearTilemap();
             RunProceduralGeneration();
         }
+        
+        [Button]
+        protected virtual void ClearTilemap() => TilemapVisualiser.Clear();
 
         protected abstract void RunProceduralGeneration();
     }

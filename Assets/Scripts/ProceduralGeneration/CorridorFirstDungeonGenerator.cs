@@ -13,10 +13,30 @@ namespace ProceduralGeneration
         [SerializeField, Range(0.1f, 1)] private float roomPercent = 0.8f;
 
         [SerializeField] private CorridorWidthType _corridorWidthType;
-    
+
+        private Dictionary<Vector2Int, HashSet<Vector2Int>> roomsDictionary = new();
+
+        private HashSet<Vector2Int> floorPositions, corridorPositions;
+        [SerializeField] private List<Color> roomColors;
+
         protected override void RunProceduralGeneration()
         {
+            ClearRoomData();
             GenerateFirstCorridor();
+        }
+
+        protected override void ClearTilemap()
+        {
+            base.ClearTilemap();
+            ClearRoomData();
+        }
+
+        public void ClearRoomData()
+        {
+            floorPositions?.Clear();
+            corridorPositions?.Clear();
+            roomsDictionary?.Clear();
+            roomColors?.Clear();
         }
 
         private void GenerateFirstCorridor()
@@ -33,6 +53,14 @@ namespace ProceduralGeneration
 
             floorPositions.UnionWith(roomPositions);
 
+            IncreaseAllCorridorsSize(corridors, floorPositions);
+
+            TilemapVisualiser.PaintFloorTiles(floorPositions);
+            WallGenerator.GenerateWalls(floorPositions, TilemapVisualiser);
+        }
+
+        protected void IncreaseAllCorridorsSize(List<List<Vector2Int>> corridors, HashSet<Vector2Int> floorPositions)
+        {
             for (int i = 0; i < corridors.Count; i++)
             {
                 switch (_corridorWidthType)
@@ -44,17 +72,31 @@ namespace ProceduralGeneration
                         corridors[i] = IncreaseCorridorBrush3By3(corridors[i]);
                         break;
                     case CorridorWidthType.Default:
-                    
-                        break;
+                        return;
                 }
+
                 floorPositions.UnionWith(corridors[i]);
             }
-
-            TilemapVisualiser.PaintFloorTiles(floorPositions);
-            WallGenerator.GenerateWalls(floorPositions, TilemapVisualiser);
         }
 
-        private List<Vector2Int> IncreaseCorridorSizeByOne(List<Vector2Int> corridor)
+        // protected HashSet<Vector2Int> IncreaseOneCorridorSize(HashSet<Vector2Int> corridor)
+        // {
+        //     switch (_corridorWidthType)
+        //     {
+        //         case CorridorWidthType.IncreaseByOne:
+        //             corridor = IncreaseCorridorSizeByOne(corridor.ToList());
+        //             break;
+        //         case CorridorWidthType.IncreaseBrush3By3:
+        //             corridor = IncreaseCorridorBrush3By3(corridor.ToList());
+        //             break;
+        //         case CorridorWidthType.Default:
+        //             return null;
+        //     }
+        //
+        //     return corridor;
+        // }
+
+        protected List<Vector2Int> IncreaseCorridorSizeByOne(List<Vector2Int> corridor)
         {
             List<Vector2Int> newCorridor = new();
             Vector2Int previousDirection = Vector2Int.zero;
@@ -89,7 +131,7 @@ namespace ProceduralGeneration
             return newCorridor;
         }
 
-        private List<Vector2Int> IncreaseCorridorBrush3By3(List<Vector2Int> corridor)
+        protected List<Vector2Int> IncreaseCorridorBrush3By3(List<Vector2Int> corridor)
         {
             List<Vector2Int> newCorridor = new();
             for (int i = 1; i < corridor.Count; i++)
@@ -106,7 +148,7 @@ namespace ProceduralGeneration
             return newCorridor;
         }
 
-        private Vector2Int GetDirection90From(Vector2Int directionFromCell)
+        protected Vector2Int GetDirection90From(Vector2Int directionFromCell)
         {
             if (directionFromCell == Vector2Int.up)
                 return Vector2Int.right;
@@ -162,10 +204,20 @@ namespace ProceduralGeneration
             foreach (var roomPosition in roomsToCreate)
             {
                 var roomFloor = RunRandomWalk(RandomWalkData, roomPosition);
+                SaveRoomData(roomPosition, roomFloor);
                 roomPositions.UnionWith(roomFloor);
             }
 
             return roomPositions;
+        }
+
+        protected void SaveRoomData(Vector2Int roomPosition, HashSet<Vector2Int> roomFloor)
+        {
+            roomsDictionary[roomPosition] = roomFloor;
+
+            ItemPlacementHelper iph = new(roomsDictionary[roomPosition], roomsDictionary[roomPosition]);
+
+            roomColors.Add(UnityEngine.Random.ColorHSV());
         }
 
         private List<List<Vector2Int>> GenerateCorridors(HashSet<Vector2Int> floorPositions,
@@ -184,6 +236,8 @@ namespace ProceduralGeneration
                 floorPositions.UnionWith(corridor);
             }
 
+            corridorPositions = new HashSet<Vector2Int>(floorPositions);
+
             return corridors;
         }
 
@@ -193,6 +247,5 @@ namespace ProceduralGeneration
             IncreaseBrush3By3,
             Default
         }
-    
     }
 }

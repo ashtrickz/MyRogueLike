@@ -124,7 +124,7 @@ namespace ProceduralGeneration
             new Vector2Int(-1, 0),  // Left
             new Vector2Int(-1, 1)   // Up-Left
         };
-        
+
         public static Vector2Int GetRandomCardinalDirection() =>
             CardinalDirectionsList[UnityEngine.Random.Range(0, CardinalDirectionsList.Count)];
     }

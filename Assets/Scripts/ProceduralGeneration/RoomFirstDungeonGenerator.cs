@@ -1,20 +1,26 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Sirenix.OdinInspector;
+using Unity.VisualScripting;
 using UnityEngine;
+using Sirenix.Serialization;
+using Random = UnityEngine.Random;
 
 namespace ProceduralGeneration
 {
     public class RoomFirstDungeonGenerator : SimpleRandomWalkGenerator
     {
         [SerializeField] private int minRoomWidth = 4, minRoomHeight = 4;
-
         [SerializeField] private int dungeonWidth = 20, dungeonHeight = 20;
 
         [SerializeField, Range(0, 10)] private int offset = 1;
 
         [SerializeField] private bool useRandomWalk = false;
-
         [SerializeField] private bool useSquareShapeGeneration = false;
-        
+
+        protected LevelGenerationData LevelData => RootData.RootInstance.LevelGenerationData;
+
         protected override void RunProceduralGeneration()
         {
             GenerateRooms();
@@ -22,12 +28,14 @@ namespace ProceduralGeneration
 
         private void GenerateRooms()
         {
+            ClearRoomData();
+
             var roomsList = ProceduralGenerationAlgorithms.BinarySpacePartitioning(
                 new BoundsInt((Vector3Int) StartPosition, new Vector3Int(dungeonWidth, dungeonHeight, 0)),
                 minRoomWidth,
                 minRoomHeight,
                 useSquareShapeGeneration
-                );
+            );
 
             HashSet<Vector2Int> floor = new();
 
@@ -38,7 +46,7 @@ namespace ProceduralGeneration
             {
                 roomCenters.Add((Vector2Int) Vector3Int.RoundToInt(room.center));
             }
-
+            
             HashSet<Vector2Int> corridors = ConnectRooms(roomCenters);
             floor.UnionWith(corridors);
 
@@ -75,17 +83,25 @@ namespace ProceduralGeneration
 
         private HashSet<Vector2Int> GenerateSimpleRooms(List<BoundsInt> roomsList)
         {
+            int roomId = 0;
             HashSet<Vector2Int> floor = new();
             foreach (var room in roomsList)
             {
+                HashSet<Vector2Int> singleRoomFloor = new();
                 for (int column = offset; column < room.size.x - offset; column++)
                 {
                     for (int row = offset; row < room.size.y - offset; row++)
                     {
                         var position = (Vector2Int) room.min + new Vector2Int(column, row);
+                        singleRoomFloor.Add(position);
                         floor.Add(position);
                     }
                 }
+
+                //TODO ADD ROOM DATA HERE
+                LevelData.CreateRoomData(room, (Vector2Int) Vector3Int.RoundToInt(room.center),
+                    singleRoomFloor, roomId);
+                roomId++;
             }
 
             return floor;
@@ -103,6 +119,9 @@ namespace ProceduralGeneration
                 Vector2Int closestCenter = FindClosestPoint(currentRoomCenter, roomCenters);
                 roomCenters.Remove(closestCenter);
                 HashSet<Vector2Int> newCorridor = GenerateCorridor(currentRoomCenter, closestCenter);
+
+                //IncreaseOneCorridorSize(newCorridor);
+
                 currentRoomCenter = closestCenter;
                 corridors.UnionWith(newCorridor);
             }
@@ -153,5 +172,13 @@ namespace ProceduralGeneration
 
             return corridor;
         }
+
+        protected override void ClearTilemap()
+        {
+            base.ClearTilemap();
+            ClearRoomData();
+        }
+
+        private void ClearRoomData() => LevelData.ClearRoomData();
     }
 }
