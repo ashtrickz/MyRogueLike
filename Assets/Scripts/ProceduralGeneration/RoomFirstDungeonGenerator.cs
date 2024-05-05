@@ -5,6 +5,7 @@ using Sirenix.OdinInspector;
 using Unity.VisualScripting;
 using UnityEngine;
 using Sirenix.Serialization;
+using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
 
 namespace ProceduralGeneration
@@ -15,10 +16,12 @@ namespace ProceduralGeneration
         [SerializeField] private int dungeonWidth = 20, dungeonHeight = 20;
 
         [SerializeField, Range(0, 10)] private int offset = 1;
-
+        [Space]
         [SerializeField] private bool useRandomWalk = false;
         [SerializeField] private bool useSquareShapeGeneration = false;
-
+        
+        [SerializeField, Range(0, 10)] private int minPropCount, maxPropCount;
+        
         protected LevelGenerationData LevelData => RootData.RootInstance.LevelGenerationData;
 
         protected override void RunProceduralGeneration()
@@ -52,6 +55,7 @@ namespace ProceduralGeneration
 
             TilemapVisualiser.PaintFloorTiles(floor);
             WallGenerator.GenerateWalls(floor, TilemapVisualiser);
+            PropGenerator.GenerateProps(minPropCount, maxPropCount, TilemapVisualiser);
         }
 
 

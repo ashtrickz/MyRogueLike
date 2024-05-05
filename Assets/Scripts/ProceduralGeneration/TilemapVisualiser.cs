@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Random = UnityEngine.Random;
 
 namespace ProceduralGeneration
 {
@@ -19,6 +21,8 @@ namespace ProceduralGeneration
         [SerializeField] protected TileBase wallInnerDownLeftCorner, wallInnerDownRightCorner;
         [SerializeField] protected TileBase wallOuterDownLeftCorner, wallOuterDownRightCorner;
         [SerializeField] protected TileBase wallOuterUpLeftCorner, wallOuterUpRightCorner;
+
+        private GameObject propParent;
 
         public void PaintFloorTiles(IEnumerable<Vector2Int> floorPositions)
         {
@@ -54,7 +58,7 @@ namespace ProceduralGeneration
                 tile = wallBottom;
             else if (WallByteTypes.wallFull.Contains(typeAsInt))
                 tile = wallFull;
-        
+
             if (tile != null)
                 PaintSingleTile(wallTilemap, tile, position);
         }
@@ -63,7 +67,7 @@ namespace ProceduralGeneration
         {
             TileBase tile = null;
             int typeAsInt = Convert.ToInt32(binaryType, 2);
-        
+
             if (WallByteTypes.wallInnerCornerDownLeft.Contains(typeAsInt))
                 tile = wallInnerDownLeftCorner;
             else if (WallByteTypes.wallInnerCornerDownRight.Contains(typeAsInt))
@@ -73,22 +77,39 @@ namespace ProceduralGeneration
             else if (WallByteTypes.wallDiagonalCornerDownRight.Contains(typeAsInt))
                 tile = wallOuterDownRightCorner;
             else if (WallByteTypes.wallDiagonalCornerUpLeft.Contains(typeAsInt))
-                tile = wallOuterUpLeftCorner;        
+                tile = wallOuterUpLeftCorner;
             else if (WallByteTypes.wallDiagonalCornerUpRight.Contains(typeAsInt))
                 tile = wallOuterUpRightCorner;
             else if (WallByteTypes.wallFullEightDirections.Contains(typeAsInt))
-                tile = wallFull;        
+                tile = wallFull;
             else if (WallByteTypes.wallBottmEightDirections.Contains(typeAsInt))
                 tile = wallBottom;
-        
+
             if (tile != null)
                 PaintSingleTile(wallTilemap, tile, position);
+        }
+
+        public void PaintProp(Vector2Int position)
+        {
+            if (propParent == null)
+            {
+                propParent = new GameObject("Props");
+                propParent.transform.parent = FindObjectOfType<Grid>().transform;
+            }
+
+            var propsDictionary = RootData.RootInstance.PropsDictionary;
+            var prop = Instantiate(propsDictionary.ElementAt(Random.Range(0, propsDictionary.Count)).Value,
+                propParent.transform);
+            prop.transform.position = new Vector3(position.x + .5f, position.y, 0);
         }
 
         public void Clear()
         {
             floorTilemap.ClearAllTiles();
             wallTilemap.ClearAllTiles();
+
+            if (propParent == null) return;
+            DestroyImmediate(propParent);
         }
     }
 }

@@ -11,8 +11,8 @@ public class LevelGenerationData : SerializedScriptableObject
 {
     public readonly Dictionary<int, RoomData> RoomsList = new();
 
-    [SerializeField] private GameObject identifierPrefab;
-
+    [Range(10, 100)] public float ChanceToPaintProp = 20f;
+    
     private List<GameObject> _identifiersList = new();
     private GameObject _parentIdentifier;
     private bool _roomIdentifierOn = false;
@@ -36,6 +36,7 @@ public class LevelGenerationData : SerializedScriptableObject
     [Button]
     private void ToggleRoomsIdentifiers()
     {
+        var identifierPrefab = RootData.RootInstance.IdentifierPrefab;
         if (_roomIdentifierOn)
         {
             foreach (var identifier in _identifiersList)

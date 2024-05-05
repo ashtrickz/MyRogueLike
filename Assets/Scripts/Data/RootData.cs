@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Data/RootData")]
-public class RootData : ScriptableObject
+public class RootData : SerializedScriptableObject
 {
     private static RootData _instance;
 
@@ -36,9 +36,21 @@ public class RootData : ScriptableObject
 
     #endregion
 
-    [InlineEditor, LabelText("$_roomsCount")] public LevelGenerationData LevelGenerationData;
+    [InlineEditor, LabelText("$_roomsCount")]
+    public LevelGenerationData LevelGenerationData;
 
+    public GameObject IdentifierPrefab;
+
+    [FoldoutGroup("Props")] public readonly Dictionary<string, GameObject> PropsDictionary = new();
+    
+    [FoldoutGroup("Props"), Button]
+    public void AddProp(GameObject[] props)
+    {
+        foreach (var prop in props)
+        {
+            PropsDictionary.Add(prop.name.Replace("Prop_", string.Empty), prop);
+        }
+    } 
+    
     private string _roomsCount => $"Generated {LevelGenerationData.RoomsList.Count} Rooms";
-
-
 }
