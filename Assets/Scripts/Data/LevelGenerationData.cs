@@ -11,6 +11,8 @@ public class LevelGenerationData : SerializedScriptableObject
 {
     public readonly Dictionary<int, RoomData> RoomsList = new();
 
+    public readonly Dictionary<string, Dictionary<int, RoomData>> SavedRoomsDictionary = new();
+
     [Range(10, 100)] public float ChanceToPaintProp = 20f;
     
     private List<GameObject> _identifiersList = new();
@@ -68,6 +70,15 @@ public class LevelGenerationData : SerializedScriptableObject
         _roomIdentifierOn = !_roomIdentifierOn;
     }
 
+    [Button]
+    private void SaveRoomData(string generationName) => SavedRoomsDictionary.Add(generationName, RoomsList);
+
+    [Button]
+    private void LoadRoomData(string generationName)
+    {
+        var room = SavedRoomsDictionary[generationName];
+    }
+    
     public void CreateRoomData(BoundsInt bounds, Vector2Int center, HashSet<Vector2Int> floor, int roomId)
     {
         RoomsList.Add(roomId, new RoomData(bounds, center, floor));
