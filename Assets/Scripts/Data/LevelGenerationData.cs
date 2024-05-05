@@ -1,17 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using ProceduralGeneration;
 using Sirenix.OdinInspector;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-[CreateAssetMenu(menuName = "Data/LevelGenerationData")]
+[CreateAssetMenu(menuName = "Data/Generation/LevelGenerationData")]
 public class LevelGenerationData : SerializedScriptableObject
 {
     public readonly Dictionary<int, RoomData> RoomsList = new();
 
-    public readonly Dictionary<string, Dictionary<int, RoomData>> SavedRoomsDictionary = new();
+    [InlineEditor] public readonly List<GenerationData> SavedGenerationsDictionary = new();
 
     [Range(10, 100)] public float ChanceToPaintProp = 20f;
     
@@ -71,12 +73,23 @@ public class LevelGenerationData : SerializedScriptableObject
     }
 
     [Button]
-    private void SaveRoomData(string generationName) => SavedRoomsDictionary.Add(generationName, RoomsList);
+    private void SaveGenerationData(string generationName)
+    {
+        var generationData = CreateInstance<GenerationData>();
+        generationData.GenerationName = generationName;
+        generationData.RoomsDictionary = RoomsList;
+        
+        AssetDatabase.CreateAsset(generationData, $"Assets/Resources/ProceduralGeneration/GeneratedLevels/{generationName}.asset");
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        
+        SavedGenerationsDictionary.Add(generationData);
+    } 
 
     [Button]
-    private void LoadRoomData(string generationName)
+    private void LoadGenerationData(string generationName)
     {
-        var room = SavedRoomsDictionary[generationName];
+        //TODO Loading rooms from saved data;
     }
     
     public void CreateRoomData(BoundsInt bounds, Vector2Int center, HashSet<Vector2Int> floor, int roomId)

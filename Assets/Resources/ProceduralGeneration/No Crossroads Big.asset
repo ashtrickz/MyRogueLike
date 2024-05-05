@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33db014a8041b85408bebbd2c7493065, type: 3}
-  m_Name: LeverGenerationData
+  m_Script: {fileID: 11500000, guid: 8b9c4506c88db5d44803c321b090e98f, type: 3}
+  m_Name: No Crossroads Big
   m_EditorClassIdentifier: 
   serializationData:
     SerializedFormat: 2
@@ -21,7 +21,7 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes:
-    - Name: RoomsList
+    - Name: RoomsDictionary
       Entry: 7
       Data: 0|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[LevelGenerationData+RoomData,
         Assembly-CSharp]], mscorlib
@@ -14877,17 +14877,4 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: SavedGenerationsDictionary
-      Entry: 7
-      Data: 18|System.Collections.Generic.List`1[[ProceduralGeneration.GenerationData,
-        Assembly-CSharp]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-  ChanceToPaintProp: 20.3
+  GenerationName: No Crossroads Big
