@@ -52,5 +52,5 @@ public class RootData : SerializedScriptableObject
         }
     } 
     
-    private string _roomsCount => $"Generated {LevelGenerationData.RoomsList.Count} Rooms";
+    private string _roomsCount => $"Generated {LevelGenerationData.RoomsDictionary.Count} Rooms";
 }

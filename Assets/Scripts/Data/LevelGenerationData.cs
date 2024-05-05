@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using ProceduralGeneration;
 using Sirenix.OdinInspector;
 using TMPro;
@@ -11,9 +12,8 @@ using Random = UnityEngine.Random;
 [CreateAssetMenu(menuName = "Data/Generation/LevelGenerationData")]
 public class LevelGenerationData : SerializedScriptableObject
 {
-    public readonly Dictionary<int, RoomData> RoomsList = new();
-
-    [InlineEditor] public readonly List<GenerationData> SavedGenerationsDictionary = new();
+    public readonly Dictionary<int, RoomData> RoomsDictionary = new();
+    public readonly HashSet<Vector2Int> Corridors = new();
 
     [Range(10, 100)] public float ChanceToPaintProp = 20f;
     
@@ -21,6 +21,8 @@ public class LevelGenerationData : SerializedScriptableObject
     private GameObject _parentIdentifier;
     private bool _roomIdentifierOn = false;
 
+    private int _minPropCount, _maxPropCount;
+    
     public struct RoomData
     {
         public Color ColorId;
@@ -52,7 +54,7 @@ public class LevelGenerationData : SerializedScriptableObject
             _parentIdentifier = new GameObject("Identifiers");
             _identifiersList.Add(_parentIdentifier);
 
-            foreach (var roomData in RoomsList)
+            foreach (var roomData in RoomsDictionary)
             {
                 var identifier = Instantiate(identifierPrefab, _parentIdentifier.transform);
                 identifier.transform.position =
@@ -77,28 +79,63 @@ public class LevelGenerationData : SerializedScriptableObject
     {
         var generationData = CreateInstance<GenerationData>();
         generationData.GenerationName = generationName;
-        generationData.RoomsDictionary = RoomsList;
+        foreach (var roomData in RoomsDictionary)
+        {
+            generationData.RoomsDictionary.Add(roomData.Key, roomData.Value);
+        }
+        generationData.Corridors.UnionWith(Corridors);
+        generationData.MinPropCount = _minPropCount;
+        generationData.MaxPropCount = _maxPropCount;
         
         AssetDatabase.CreateAsset(generationData, $"Assets/Resources/ProceduralGeneration/GeneratedLevels/{generationName}.asset");
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        
-        SavedGenerationsDictionary.Add(generationData);
     } 
 
     [Button]
-    private void LoadGenerationData(string generationName)
+    private void LoadGenerationData(GenerationData generationData)
     {
-        //TODO Loading rooms from saved data;
+        ClearLevelData();
+        
+        var tilemapVisualiser = FindObjectOfType<TilemapVisualiser>();
+        HashSet<Vector2Int> floor = new();
+
+        foreach (var roomData in generationData.RoomsDictionary.Values)
+        {
+            floor.UnionWith(roomData.Floor);
+        }
+
+        floor.UnionWith(generationData.Corridors);
+
+        foreach (var room in generationData.RoomsDictionary)
+        {
+            RoomsDictionary.Add(room.Key, room.Value);
+        }
+
+        tilemapVisualiser.PaintFloorTiles(floor);
+        WallGenerator.GenerateWalls(floor, tilemapVisualiser);
+        PropGenerator.GenerateProps(generationData.MinPropCount, generationData.MaxPropCount, tilemapVisualiser);
     }
     
     public void CreateRoomData(BoundsInt bounds, Vector2Int center, HashSet<Vector2Int> floor, int roomId)
     {
-        RoomsList.Add(roomId, new RoomData(bounds, center, floor));
+        RoomsDictionary.Add(roomId, new RoomData(bounds, center, floor));
     }
 
-    public void ClearRoomData()
+    public void ClearLevelData()
     {
-        RoomsList.Clear();
+        RoomsDictionary.Clear();
+        Corridors.Clear();
+    }
+
+    public void CompleteLevelData(HashSet<Vector2Int> corridors, int minPropCount, int maxPropCount)
+    {
+        foreach (var corridor in corridors)
+        {
+            Corridors.Add(corridor);
+        }
+
+        _minPropCount = minPropCount;
+        _maxPropCount = maxPropCount;
     }
 }

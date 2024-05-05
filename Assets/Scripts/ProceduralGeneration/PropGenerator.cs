@@ -8,7 +8,7 @@ namespace ProceduralGeneration
     {
         public static void GenerateProps(int minPropCount, int maxPropCount, TilemapVisualiser visualiser)
         {
-            var rooms = RootData.RootInstance.LevelGenerationData.RoomsList;
+            var rooms = RootData.RootInstance.LevelGenerationData.RoomsDictionary;
             foreach (var room in rooms)
             {
                 var propsToGenerateCount = Random.Range(minPropCount, maxPropCount);

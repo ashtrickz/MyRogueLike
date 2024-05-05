@@ -31,7 +31,6 @@ namespace ProceduralGeneration
 
         private void GenerateRooms()
         {
-            ClearRoomData();
 
             var roomsList = ProceduralGenerationAlgorithms.BinarySpacePartitioning(
                 new BoundsInt((Vector3Int) StartPosition, new Vector3Int(dungeonWidth, dungeonHeight, 0)),
@@ -51,8 +50,11 @@ namespace ProceduralGeneration
             }
             
             HashSet<Vector2Int> corridors = ConnectRooms(roomCenters);
+
             floor.UnionWith(corridors);
 
+            LevelData.CompleteLevelData(corridors, minPropCount, maxPropCount);
+            
             TilemapVisualiser.PaintFloorTiles(floor);
             WallGenerator.GenerateWalls(floor, TilemapVisualiser);
             PropGenerator.GenerateProps(minPropCount, maxPropCount, TilemapVisualiser);
@@ -180,9 +182,9 @@ namespace ProceduralGeneration
         protected override void ClearTilemap()
         {
             base.ClearTilemap();
-            ClearRoomData();
+            ClearLevelData();
         }
 
-        private void ClearRoomData() => LevelData.ClearRoomData();
+        private void ClearLevelData() => LevelData.ClearLevelData();
     }
 }

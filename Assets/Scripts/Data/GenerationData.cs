@@ -9,12 +9,10 @@ namespace ProceduralGeneration
     {
         public string GenerationName = "SavedGeneration";
         public Dictionary<int, LevelGenerationData.RoomData> RoomsDictionary = new();
+        public HashSet<Vector2Int> Corridors = new();
 
-        public void Init(string generationName, Dictionary<int, LevelGenerationData.RoomData> roomData)
-        {
-            GenerationName = generationName;
-            RoomsDictionary = roomData;
-        }
-        
+        [HideInInspector] public int MinPropCount;
+        [HideInInspector] public int MaxPropCount;
+
     }
 }
