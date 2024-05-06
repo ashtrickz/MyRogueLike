@@ -6,10 +6,10 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Data/RootData")]
 public class RootData : SerializedScriptableObject
 {
-    private static RootData _instance;
-
     #region Singleton
 
+    private static RootData _instance;
+    
     public static RootData RootInstance
     {
         get

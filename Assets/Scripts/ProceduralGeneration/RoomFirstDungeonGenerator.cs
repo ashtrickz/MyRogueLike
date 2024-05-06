@@ -15,7 +15,7 @@ namespace ProceduralGeneration
         [SerializeField] private int minRoomWidth = 4, minRoomHeight = 4;
         [SerializeField] private int dungeonWidth = 20, dungeonHeight = 20;
 
-        [SerializeField, Range(0, 10)] private int offset = 1;
+        [SerializeField, Range(0, 3)] private int offset = 1;
         [Space]
         [SerializeField] private bool useRandomWalk = false;
         [SerializeField] private bool useSquareShapeGeneration = false;

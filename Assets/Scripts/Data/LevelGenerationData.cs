@@ -12,17 +12,16 @@ using Random = UnityEngine.Random;
 [CreateAssetMenu(menuName = "Data/Generation/LevelGenerationData")]
 public class LevelGenerationData : SerializedScriptableObject
 {
+    [Range(10, 100)] public float ChanceToPaintProp = 20f;
+    
     public readonly Dictionary<int, RoomData> RoomsDictionary = new();
     public readonly HashSet<Vector2Int> Corridors = new();
-
-    [Range(10, 100)] public float ChanceToPaintProp = 20f;
     
     private List<GameObject> _identifiersList = new();
     private GameObject _parentIdentifier;
     private bool _roomIdentifierOn = false;
-
     private int _minPropCount, _maxPropCount;
-    
+
     public struct RoomData
     {
         public Color ColorId;
@@ -83,20 +82,22 @@ public class LevelGenerationData : SerializedScriptableObject
         {
             generationData.RoomsDictionary.Add(roomData.Key, roomData.Value);
         }
+
         generationData.Corridors.UnionWith(Corridors);
         generationData.MinPropCount = _minPropCount;
         generationData.MaxPropCount = _maxPropCount;
-        
-        AssetDatabase.CreateAsset(generationData, $"Assets/Resources/ProceduralGeneration/GeneratedLevels/{generationName}.asset");
+
+        AssetDatabase.CreateAsset(generationData,
+            $"Assets/Resources/ProceduralGeneration/GeneratedLevels/{generationName}.asset");
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-    } 
+    }
 
     [Button]
     private void LoadGenerationData(GenerationData generationData)
     {
         ClearLevelData();
-        
+
         var tilemapVisualiser = FindObjectOfType<TilemapVisualiser>();
         HashSet<Vector2Int> floor = new();
 
@@ -116,16 +117,10 @@ public class LevelGenerationData : SerializedScriptableObject
         WallGenerator.GenerateWalls(floor, tilemapVisualiser);
         PropGenerator.GenerateProps(generationData.MinPropCount, generationData.MaxPropCount, tilemapVisualiser);
     }
-    
+
     public void CreateRoomData(BoundsInt bounds, Vector2Int center, HashSet<Vector2Int> floor, int roomId)
     {
         RoomsDictionary.Add(roomId, new RoomData(bounds, center, floor));
-    }
-
-    public void ClearLevelData()
-    {
-        RoomsDictionary.Clear();
-        Corridors.Clear();
     }
 
     public void CompleteLevelData(HashSet<Vector2Int> corridors, int minPropCount, int maxPropCount)
@@ -137,5 +132,11 @@ public class LevelGenerationData : SerializedScriptableObject
 
         _minPropCount = minPropCount;
         _maxPropCount = maxPropCount;
+    }
+
+    public void ClearLevelData()
+    {
+        RoomsDictionary.Clear();
+        Corridors.Clear();
     }
 }
