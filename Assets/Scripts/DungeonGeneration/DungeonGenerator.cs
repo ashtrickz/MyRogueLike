@@ -63,7 +63,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
         ClearDungeon();
 
         GenerateRooms();
-        GenerateDoorways();
+        ConnectAndPaintRooms();
     }
 
     private void GenerateRooms()
@@ -234,7 +234,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
         return doorways;
     }
 
-    private void GenerateDoorways()
+    private void ConnectAndPaintRooms()
     {
         foreach (var roomData in generationData.RoomsDictionary)
         {
