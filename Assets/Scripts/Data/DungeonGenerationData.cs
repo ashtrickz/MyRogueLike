@@ -9,6 +9,8 @@ using Sirenix.Utilities;
 using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
+using RoomData = DungeonGenerationData.RoomData;
+using NeighbourData = DungeonGenerationData.RoomData.NeighbourData;
 
 [CreateAssetMenu(menuName = "Data/Generation/DungeonGenerationData")]
 public class DungeonGenerationData : SerializedScriptableObject
@@ -21,9 +23,9 @@ public class DungeonGenerationData : SerializedScriptableObject
     }
 
     public void AddRoomData(int roomId, HashSet<Vector2Int> floor, HashSet<Vector2Int> walls,
-        Dictionary<Direction, Vector2Int> doorwayPoints, Direction takenDirection)
+        Dictionary<Direction, Vector2Int> doorwayPoints, Direction takenDirection, Vector2Int rangeX, Vector2Int rangeY)
     {
-        RoomsDictionary.Add(roomId, new RoomData(floor, walls, doorwayPoints, takenDirection));
+        RoomsDictionary.Add(roomId, new RoomData(floor, walls, doorwayPoints, takenDirection, rangeX, rangeY));
     }
 
     public RoomData GetRandomFreeRoom()
@@ -39,21 +41,21 @@ public class DungeonGenerationData : SerializedScriptableObject
         return selectedRoom;
     }
 
-    public RoomData.NeighbourData GetRandomFreeNeighbour(RoomData randomRoom, out Direction takenDirection)
+    public NeighbourData GetRandomFreeNeighbour(RoomData randomRoom, out Direction takenDirection)
     {
-        List<RoomData.NeighbourData> freeNeighbours = new();
+        List<NeighbourData> freeNeighbours = new();
 
         foreach (var neighbourData in randomRoom.NeighboursList)
             if (!neighbourData.IsTaken)
                 freeNeighbours.Add(neighbourData);
 
         // TODO Implement NULL exceptions 
-        RoomData.NeighbourData selectedNeighbour = freeNeighbours[Random.Range(0, freeNeighbours.Count)];
+        NeighbourData selectedNeighbour = freeNeighbours[Random.Range(0, freeNeighbours.Count)];
 
-        MarkNeighbourTaken(randomRoom, selectedNeighbour);
+        MarkNeighbourTaken(selectedNeighbour);
 
         takenDirection = Direction.Bottom;
-        
+
         switch (selectedNeighbour.DoorwayDirection)
         {
             case Direction.Bottom:
@@ -73,7 +75,7 @@ public class DungeonGenerationData : SerializedScriptableObject
         return selectedNeighbour;
     }
 
-    private void MarkNeighbourTaken(RoomData randomRoom, RoomData.NeighbourData selectedNeighbour)
+    private void MarkNeighbourTaken(NeighbourData selectedNeighbour)
     {
         foreach (var roomData in RoomsDictionary.Values)
         {
@@ -92,14 +94,20 @@ public class DungeonGenerationData : SerializedScriptableObject
         [field: SerializeField, DisplayAsString]
         public HashSet<Vector2Int> Walls { get; private set; }
 
+        [field: SerializeField, DisplayAsString] public Vector2Int RangeX { get; private set; }
+        [field: SerializeField, DisplayAsString] public Vector2Int RangeY { get; private set; }
+        
         [field: SerializeField] public List<NeighbourData> NeighboursList { get; private set; }
 
         public RoomData(HashSet<Vector2Int> floor, HashSet<Vector2Int> walls,
-            Dictionary<Direction, Vector2Int> doorwayPoints, Direction takenDirection)
+            Dictionary<Direction, Vector2Int> doorwayPoints, Direction takenDirection, Vector2Int rangeX, Vector2Int rangeY)
         {
             Floor = floor;
             Walls = walls;
 
+            RangeX = rangeX;
+            RangeY = rangeY;
+            
             NeighboursList = new();
             foreach (var doorwayPoint in doorwayPoints)
                 NeighboursList.Add(new NeighbourData(doorwayPoint.Key, doorwayPoint.Value));
@@ -141,7 +149,8 @@ public class DungeonGenerationData : SerializedScriptableObject
             [field: SerializeField, DisplayAsString]
             public Direction DoorwayDirection { get; private set; }
 
-            [field: SerializeField, DisplayAsString] public bool IsTaken { get; private set; }
+            [field: SerializeField, DisplayAsString]
+            public bool IsTaken { get; private set; }
 
             public NeighbourData(Direction doorwayDirection, Vector2Int doorwayPoint)
             {
@@ -150,11 +159,7 @@ public class DungeonGenerationData : SerializedScriptableObject
                 IsTaken = false;
             }
 
-            public void MarkTaken()
-            {
-                IsTaken = true;
-                Debug.Log($"{DoorwayPoint} is now Taken, {IsTaken}");
-            }
+            public void MarkTaken() => IsTaken = true;
         }
     }
 }
