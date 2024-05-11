@@ -8,7 +8,7 @@ namespace ProceduralGeneration
     public class GenerationData : SerializedScriptableObject
     {
         public string GenerationName = "SavedGeneration";
-        public Dictionary<int, LevelGenerationData.RoomData> RoomsDictionary = new();
+        public Dictionary<int, LevelGenerationData.OldRoomData> RoomsDictionary = new();
         public HashSet<Vector2Int> Corridors = new();
 
         [HideInInspector] public int MinPropCount;

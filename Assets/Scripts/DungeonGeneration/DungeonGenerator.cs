@@ -1,15 +1,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
+using ProceduralGeneration;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor.Drawers;
 using Sirenix.Utilities;
 using Unity.VisualScripting;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
+using RoomData = DungeonGenerationData.RoomData;
+using NeighbourData = DungeonGenerationData.RoomData.NeighbourData;
 
 public class DungeonGenerator : SerializedMonoBehaviour
 {
@@ -19,12 +24,14 @@ public class DungeonGenerator : SerializedMonoBehaviour
     [HorizontalGroup("Tilemaps", .5f), LabelWidth(80), SerializeField]
     private Tilemap floorTilemap, wallTilemap;
 
-    [Title("Generation Data", titleAlignment: TitleAlignments.Centered), MinMaxSlider(2, 10), LabelWidth(145f),
-     SerializeField, SuffixLabel("$_roomsCountString")]
+    [Title("Generation Data", titleAlignment: TitleAlignments.Centered), InlineEditor, SerializeField]
+    private DungeonGenerationData generationData;
+
+    [MinMaxSlider(2, 10), LabelWidth(145f), SerializeField, SuffixLabel("$_roomsCountString")]
     private Vector2Int roomCount = new(5, 7);
 
     [MinMaxSlider(1, 4), SerializeField, LabelWidth(145f), SuffixLabel("$_doorwaysCountString")]
-    private Vector2Int doorwaysPerRoom = new Vector2Int(1, 4);
+    private Vector2Int neighboursPerRoom = new Vector2Int(1, 4);
 
     [SerializeField, Range(10, 100), LabelWidth(150f), SuffixLabel("% Higher chance -> less variety")]
     private float doorwaySpawnChance = 50f;
@@ -44,22 +51,30 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
 #if UNITY_EDITOR
     private string _roomsCountString => $"Min = {roomCount.x}, Max = {roomCount.y}";
-    private string _doorwaysCountString => $"Min = {doorwaysPerRoom.x}, Max = {doorwaysPerRoom.y}";
+    private string _doorwaysCountString => $"Min = {neighboursPerRoom.x}, Max = {neighboursPerRoom.y}";
 #endif
 
-    private int _roomsLeftToGenerate = 0;
+    private int _roomCount = 0;
+    private int _midRoomOffset = 2;
 
     [Button, HorizontalGroup("Generate Dungeon", PaddingLeft = 15f)]
     public void GenerateDungeon()
     {
         ClearDungeon();
 
-        _roomsLeftToGenerate = Random.Range(roomCount.x, roomCount.y + 1);
+        _roomCount = Random.Range(roomCount.x, roomCount.y + 1);
 
-        GenerateRoom(DoorwayDirection.ORIGIN, Vector2Int.zero);
+        generationData = ScriptableObject.CreateInstance<DungeonGenerationData>();
+
+        // GenerateRoom(0);
+
+        for (int i = 0; i < _roomCount; i++)
+        {
+            GenerateRoom(i);
+        }
     }
 
-    private void GenerateRoom(DoorwayDirection doorwayKey, Vector2Int doorwayTilePosition)
+    private void GenerateRoom(int roomId) //DoorwayDirection doorwayKey, Vector2Int doorwayTilePosition)
     {
         var roomWidth = Random.Range(minimumWidth, maximumWidth + 1);
         var roomHeight = Random.Range(minimumHeight, maximumHeight + 1);
@@ -67,67 +82,95 @@ public class DungeonGenerator : SerializedMonoBehaviour
         if (roomWidth % 2 == 0) roomWidth += 1;
         if (roomHeight % 2 == 0) roomHeight += 1;
 
-        var doorwaysAmount = Random.Range(doorwaysPerRoom.x, doorwaysPerRoom.y + 1);
-        Dictionary<DoorwayDirection, Vector2Int> roomDoorways = new();
+        var doorwaysAmount = Random.Range(neighboursPerRoom.x, neighboursPerRoom.y + 1);
+        Dictionary<Direction, Vector2Int> doorwayPoints = new();
 
-        Vector2Int spawnPosition = Vector2Int.zero;
-        switch (doorwayKey)
-        {
-            case DoorwayDirection.Left:
-                spawnPosition = new Vector2Int(doorwayTilePosition.x - roomWidth - 1,
-                    doorwayTilePosition.y - roomHeight / 2);
-                break;
-            case DoorwayDirection.Bottom:
-                spawnPosition = new Vector2Int(doorwayTilePosition.x - roomWidth / 2, doorwayTilePosition.y - roomHeight - 2);
-                break;
-            case DoorwayDirection.Right:
-                spawnPosition = new Vector2Int(doorwayTilePosition.x + 2, doorwayTilePosition.y - roomHeight / 2);
-                break;
-            case DoorwayDirection.Top:
-                spawnPosition = new Vector2Int(doorwayTilePosition.x - roomWidth / 2, doorwayTilePosition.y + 2);
-                break;
-            case DoorwayDirection.ORIGIN:
-                break;
-        }
-
-        Debug.Log(
-            $"Rooms Spawn Point {spawnPosition}, Width: {roomWidth}, Height: {roomHeight}, Doorway Tile Position: {doorwayTilePosition}");
-
-        HashSet<Vector2Int> floor = GenerateFloor(spawnPosition, roomWidth, roomHeight);
-        HashSet<Vector2Int> walls = GenerateWalls(floor, roomWidth, roomHeight, doorwaysAmount, out roomDoorways);
-
-        Debug.Log(floor.Count);
+        Direction takenDirection;
         
-        PaintTiles(floor, floorTilemap, tilingPreset.FloorTile);
-        //List<Prop> props = GenerateProps();
+        HashSet<Vector2Int> floor = GenerateFloor(roomId, roomWidth, roomHeight, out takenDirection);
+        HashSet<Vector2Int>
+            walls = GenerateWalls(floor, roomWidth, roomHeight, doorwaysAmount,
+                out doorwayPoints); //, out roomDoorways);
 
-        //AddRoomData(floor, walls, props);
-        _roomsLeftToGenerate--;
-        if (_roomsLeftToGenerate <= 0) return;
-        // POSSIBLE RECURSION!!!
-        foreach (var doorway in roomDoorways)
-        {
-            GenerateRoom(doorway.Key, doorway.Value); // Possible do neighbours
-        }
+        PaintTiles(floor, floorTilemap, tilingPreset.FloorTile);
+
+        //List<Prop> props = GenerateProps();
+        //object props = null;
+        AddRoomData(roomId, floor, walls, doorwayPoints, takenDirection); //, props);
     }
 
-    private HashSet<Vector2Int> GenerateFloor(Vector2Int cornerSpawnPosition, int roomWidth, int roomHeight)
+    private void AddRoomData(int roomId, HashSet<Vector2Int> floor, HashSet<Vector2Int> walls,
+        Dictionary<Direction, Vector2Int> doorwayPoints, Direction takenDirection) //, object props)
+    {
+        generationData.AddRoomData(roomId, floor, walls, doorwayPoints, takenDirection);
+    }
+
+    private HashSet<Vector2Int> GenerateFloor(int roomId, int roomWidth, int roomHeight, out Direction takenDirection)
     {
         HashSet<Vector2Int> floor = new();
 
-        for (int i = cornerSpawnPosition.x; i < cornerSpawnPosition.x + roomWidth; i++)
+        if (roomId == 0)
         {
-            for (int j = cornerSpawnPosition.y; j < cornerSpawnPosition.y + roomHeight; j++)
+            for (int i = -roomWidth / 2; i < roomWidth / 2 + 1; i++)
             {
-                floor.Add(new Vector2Int(i, j));
+                for (int j = -roomHeight / 2; j < roomHeight / 2 + 1; j++)
+                {
+                    floor.Add(new Vector2Int(i, j));
+                }
             }
+
+            takenDirection = Direction.Bottom;
+        }
+        else
+        {
+            RoomData randomRoom = GetRandomFreeRoom();
+            NeighbourData randomNeighbour = GetRandomFreeNeighbour(randomRoom, out takenDirection);
+            Vector2Int spawnPosition = GetSpawnPosition(randomNeighbour, roomWidth, roomHeight);
+            
+            
+            
+            for (int i = spawnPosition.x; i < spawnPosition.x + roomWidth; i++)
+            {
+                for (int j = spawnPosition.y; j < spawnPosition.y + roomHeight; j++)
+                {
+                    floor.Add(new Vector2Int(i, j));
+                }
+            }
+            
         }
 
         return floor;
     }
 
+    private Vector2Int GetSpawnPosition(NeighbourData randomNeighbour, int roomWidth, int roomHeight)
+    {
+        switch (randomNeighbour.DoorwayDirection)
+        {
+            case Direction.Left:
+                return new Vector2Int(randomNeighbour.DoorwayPoint.x - roomWidth - 1,
+                    randomNeighbour.DoorwayPoint.y - roomHeight / 2);
+            case Direction.Bottom:
+                return new Vector2Int(randomNeighbour.DoorwayPoint.x - roomWidth / 2,
+                    randomNeighbour.DoorwayPoint.y - roomHeight - 2);
+            case Direction.Right:
+                return new Vector2Int(randomNeighbour.DoorwayPoint.x + 2,
+                    randomNeighbour.DoorwayPoint.y - roomHeight / 2);
+            case Direction.Top:
+                return new Vector2Int(randomNeighbour.DoorwayPoint.x - roomWidth / 2,
+                    randomNeighbour.DoorwayPoint.y + 2);
+        }
+        
+        return Vector2Int.zero;
+    }
+
+    private RoomData GetRandomFreeRoom() => generationData.GetRandomFreeRoom();
+
+    private NeighbourData GetRandomFreeNeighbour(RoomData randomRoom, out Direction takenDirection) =>
+        generationData.GetRandomFreeNeighbour(randomRoom, out takenDirection);
+
     private HashSet<Vector2Int> GenerateWalls(HashSet<Vector2Int> floor, int roomWidth, int roomHeight,
-        int doorwaysAmount, out Dictionary<DoorwayDirection, Vector2Int> roomDoorways)
+        int doorwaysAmount,
+        out Dictionary<Direction, Vector2Int> doorwayPoints) //, out Dictionary<DoorwayDirection, Vector2Int> roomDoorways)
     {
         HashSet<Vector2Int> walls = new();
 
@@ -200,16 +243,31 @@ public class DungeonGenerator : SerializedMonoBehaviour
         PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftKey], leftUpperCorner);
         PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftUpKey], leftUpperUpperCorner);
 
-        GenerateDoorways(minX, maxX, minY, maxY, roomWidth, roomHeight, doorwaysAmount, floor,
-            out roomDoorways);
+        doorwayPoints = FindDoorways(minX, maxX, minY, maxY);
+
+        //GenerateDoorways(minX, maxX, minY, maxY, roomWidth, roomHeight, doorwaysAmount, floor,
+        //walls, out roomDoorways);
 
         return walls;
     }
 
-    private void GenerateDoorways(int minX, int maxX, int minY, int maxY, int roomWidth, int roomHeight,
-        int doorwaysAmount, HashSet<Vector2Int> floor, out Dictionary<DoorwayDirection, Vector2Int> roomDoorways)
+    private Dictionary<Direction, Vector2Int> FindDoorways(int minX, int maxX, int minY, int maxY)
     {
-        List<DoorwayDirection> directionsList = RandomizeDoorways(doorwaysAmount);
+        Dictionary<Direction, Vector2Int> doorways = new();
+
+        doorways.Add(Direction.Left, new Vector2Int(minX - 1, (minY + maxY) / 2));
+        doorways.Add(Direction.Bottom, new Vector2Int((minX + maxX) / 2, minY - 1));
+        doorways.Add(Direction.Right, new Vector2Int(maxX + 1, (minY + maxY) / 2));
+        doorways.Add(Direction.Top, new Vector2Int((minX + maxX) / 2, maxY + 2));
+
+        return doorways;
+    }
+
+    private void GenerateDoorways(int minX, int maxX, int minY, int maxY, int roomWidth, int roomHeight,
+        int doorwaysAmount, HashSet<Vector2Int> floor, HashSet<Vector2Int> walls,
+        out Dictionary<DoorwayDirection, Vector2Int> roomDoorways)
+    {
+        List<DoorwayDirection> directionsList = RandomizeDoorways(minX, maxX, minY, maxY, doorwaysAmount);
         Dictionary<DoorwayDirection, Vector2Int> doorwayDirections = new();
 
         if (directionsList.Contains(DoorwayDirection.Left))
@@ -220,11 +278,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
             Vector2Int doorwayTilePosition = new Vector2Int(minX - 1, minY + roomHeight / 2);
 
-            // walls.Add(leftDoorWayUp);
-            // walls.Add(leftDoorWayUpUp);
-            // walls.Add(leftDoorWayDown);
-            //
-            // walls.Remove(doorwayTilePosition);
+            walls.Remove(doorwayTilePosition);
             floor.Add(doorwayTilePosition);
 
             doorwayDirections.Add(DoorwayDirection.Left, doorwayTilePosition);
@@ -245,10 +299,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
             Vector2Int doorwayTilePosition = new Vector2Int(minX + roomWidth / 2, minY - 1);
 
-            // walls.Add(bottomLeftDoorWay);
-            // walls.Add(bottomRightDoorWay);
-            //
-            // walls.Remove(doorwayTilePosition);
+            walls.Remove(doorwayTilePosition);
             floor.Add(doorwayTilePosition);
 
             doorwayDirections.Add(DoorwayDirection.Bottom, doorwayTilePosition);
@@ -269,11 +320,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
             Vector2Int doorwayTilePosition = new Vector2Int(maxX + 1, minY + roomHeight / 2);
 
-            // walls.Add(rightDoorWayUp);
-            // walls.Add(rightDoorWayUpUp);
-            // walls.Add(rightDoorWayDown);
-            //
-            // walls.Remove(doorwayTilePosition);
+            walls.Remove(doorwayTilePosition);
             floor.Add(doorwayTilePosition);
 
             doorwayDirections.Add(DoorwayDirection.Right, doorwayTilePosition);
@@ -298,13 +345,8 @@ public class DungeonGenerator : SerializedMonoBehaviour
             Vector2Int doorwayTilePosition1 = new Vector2Int(minX + roomWidth / 2, maxY + 1);
             Vector2Int doorwayTilePosition2 = new Vector2Int(minX + roomWidth / 2, maxY + 2);
 
-            // walls.Add(topLeftDoorWay);
-            // walls.Add(topRightDoorWay);
-            // walls.Add(topLeftDoorWayUp);
-            // walls.Add(topRightDoorWayUp);
-            //
-            // walls.Remove(doorwayTilePosition1);
-            // walls.Remove(doorwayTilePosition2);
+            walls.Remove(doorwayTilePosition1);
+            walls.Remove(doorwayTilePosition2);
             floor.Add(doorwayTilePosition1);
             floor.Add(doorwayTilePosition2);
 
@@ -328,7 +370,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
             roomDoorways.Add(dir.Key, dir.Value);
     }
 
-    private List<DoorwayDirection> RandomizeDoorways(int doorwaysAmount)
+    private List<DoorwayDirection> RandomizeDoorways(int minX, int maxX, int minY, int maxY, int doorwaysAmount)
     {
         List<DoorwayDirection> doorwayDirections = new();
 
@@ -347,7 +389,10 @@ public class DungeonGenerator : SerializedMonoBehaviour
                     _ => DoorwayDirection.Left
                 };
 
-                if (doorwayDirections.Contains(doorwayDirection))
+                if (
+                    doorwayDirections
+                        .Contains(
+                            doorwayDirection)) //|| DirectionsIsAble(minX, maxX, minY, maxY, doorwayDirection) == false)
                 {
                     i--;
                     continue;
@@ -359,6 +404,96 @@ public class DungeonGenerator : SerializedMonoBehaviour
         }
 
         return doorwayDirections;
+    }
+
+    private bool DirectionsIsAble(int minX, int maxX, int minY, int maxY, DoorwayDirection doorwayDirection)
+    {
+        Vector2Int firstCheckPoint = Vector2Int.zero;
+        Vector2Int secondCheckPoint = Vector2Int.zero;
+
+        switch (doorwayDirection)
+        {
+            case DoorwayDirection.Left:
+                var leftDoorway = new Vector2Int(minX - _midRoomOffset, maxY / 2);
+
+                firstCheckPoint = new Vector2Int(leftDoorway.x, leftDoorway.y - maximumHeight / 2); // Lower Right
+                secondCheckPoint =
+                    new Vector2Int(leftDoorway.x - maximumWidth, leftDoorway.y + maximumHeight / 2); // Upper Left
+
+                for (int i = firstCheckPoint.y; i < firstCheckPoint.y + maximumHeight; i++)
+                {
+                    var tile = new Vector2Int(firstCheckPoint.x, i);
+                    var checkedTile = wallTilemap.GetTile((Vector3Int) tile);
+                    if (checkedTile != null) return false;
+                }
+
+                for (int i = secondCheckPoint.y + maximumHeight; i > secondCheckPoint.y; i--)
+                {
+                    var tile = new Vector2Int(secondCheckPoint.x, i);
+                    var checkedTile = wallTilemap.GetTile((Vector3Int) tile);
+                    if (checkedTile != null) return false;
+                }
+
+                for (int i = firstCheckPoint.x; i > firstCheckPoint.x - maximumWidth; i++)
+                {
+                    var tile = new Vector2Int(i, firstCheckPoint.y);
+                    var checkedTile = wallTilemap.GetTile((Vector3Int) tile);
+                    if (checkedTile != null) return false;
+                }
+
+                for (int i = secondCheckPoint.x; i < secondCheckPoint.x + maximumWidth; i++)
+                {
+                    var tile = new Vector2Int(i, firstCheckPoint.y);
+                    var checkedTile = wallTilemap.GetTile((Vector3Int) tile);
+                    if (checkedTile != null) return false;
+                }
+
+                break;
+            case DoorwayDirection.Bottom:
+                var bottomDoorway = new Vector2Int(maxX / 2, minY - _midRoomOffset);
+                break;
+            case DoorwayDirection.Right:
+                var rightDoorway = new Vector2Int(maxX + _midRoomOffset, maxY / 2);
+
+                firstCheckPoint =
+                    new Vector2Int(rightDoorway.x + maximumWidth, rightDoorway.y - maximumHeight / 2); // Lower Right
+                secondCheckPoint = new Vector2Int(rightDoorway.x, rightDoorway.y + maximumHeight / 2); // Upper Left
+
+                for (int i = firstCheckPoint.y; i < firstCheckPoint.y + maximumHeight; i++)
+                {
+                    var tile = new Vector2Int(firstCheckPoint.x, i);
+                    var checkedTile = wallTilemap.GetTile((Vector3Int) tile);
+                    if (checkedTile != null) return false;
+                }
+
+                for (int i = secondCheckPoint.y + maximumHeight; i > secondCheckPoint.y; i--)
+                {
+                    var tile = new Vector2Int(secondCheckPoint.x, i);
+                    var checkedTile = wallTilemap.GetTile((Vector3Int) tile);
+                    if (checkedTile != null) return false;
+                }
+
+                for (int i = firstCheckPoint.x; i > firstCheckPoint.x - maximumWidth; i++)
+                {
+                    var tile = new Vector2Int(i, firstCheckPoint.y);
+                    var checkedTile = wallTilemap.GetTile((Vector3Int) tile);
+                    if (checkedTile != null) return false;
+                }
+
+                for (int i = secondCheckPoint.x; i < secondCheckPoint.x + maximumWidth; i++)
+                {
+                    var tile = new Vector2Int(i, firstCheckPoint.y);
+                    var checkedTile = wallTilemap.GetTile((Vector3Int) tile);
+                    if (checkedTile != null) return false;
+                }
+
+                break;
+            case DoorwayDirection.Top:
+                var topDoorway = new Vector2Int(maxX / 2, maxY + _midRoomOffset);
+                break;
+        }
+
+        return true;
     }
 
     private void PaintTiles(IEnumerable<Vector2Int> floorPositions, Tilemap tilemap, TileBase tile)

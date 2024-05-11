@@ -14,7 +14,7 @@ public class LevelGenerationData : SerializedScriptableObject
 {
     [Range(10, 100)] public float ChanceToPaintProp = 20f;
     
-    public readonly Dictionary<int, RoomData> RoomsDictionary = new();
+    public readonly Dictionary<int, OldRoomData> RoomsDictionary = new();
     public readonly HashSet<Vector2Int> Corridors = new();
     
     private List<GameObject> _identifiersList = new();
@@ -22,14 +22,14 @@ public class LevelGenerationData : SerializedScriptableObject
     private bool _roomIdentifierOn = false;
     private int _minPropCount, _maxPropCount;
 
-    public struct RoomData
+    public struct OldRoomData
     {
         public Color ColorId;
         public BoundsInt Bounds;
         public Vector2Int Center;
         public HashSet<Vector2Int> Floor;
 
-        public RoomData(BoundsInt bounds, Vector2Int center, HashSet<Vector2Int> floor)
+        public OldRoomData(BoundsInt bounds, Vector2Int center, HashSet<Vector2Int> floor)
         {
             Bounds = bounds;
             Center = center;
@@ -120,7 +120,7 @@ public class LevelGenerationData : SerializedScriptableObject
 
     public void CreateRoomData(BoundsInt bounds, Vector2Int center, HashSet<Vector2Int> floor, int roomId)
     {
-        RoomsDictionary.Add(roomId, new RoomData(bounds, center, floor));
+        RoomsDictionary.Add(roomId, new OldRoomData(bounds, center, floor));
     }
 
     public void CompleteLevelData(HashSet<Vector2Int> corridors, int minPropCount, int maxPropCount)
