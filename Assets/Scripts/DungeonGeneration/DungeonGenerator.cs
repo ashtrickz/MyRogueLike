@@ -345,8 +345,10 @@ public class DungeonGenerator : SerializedMonoBehaviour
         for (int i = spawnPosition.x; i < spawnPosition.x + roomWidth; i++)
         for (int j = spawnPosition.y; j < spawnPosition.y + roomHeight; j++)
         {
-            if (TileCanBePlaced(new Vector2Int(i, j)) == false)
-                return false;
+            for (int k = 0; k < 2; k++)
+            for (int l = 0; l < 3; l++)
+                if (TileCanBePlaced(new Vector2Int(i + k, j + l)) == false)
+                    return false;
         }
 
         MarkNeighbourTaken(randomNeighbour);
