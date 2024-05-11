@@ -52,8 +52,6 @@ public class DungeonGenerationData : SerializedScriptableObject
         // TODO Implement NULL exceptions 
         NeighbourData selectedNeighbour = freeNeighbours[Random.Range(0, freeNeighbours.Count)];
 
-        MarkNeighbourTaken(selectedNeighbour);
-
         takenDirection = Direction.Bottom;
 
         switch (selectedNeighbour.DoorwayDirection)
@@ -75,7 +73,7 @@ public class DungeonGenerationData : SerializedScriptableObject
         return selectedNeighbour;
     }
 
-    private void MarkNeighbourTaken(NeighbourData selectedNeighbour)
+    public void MarkNeighbourTaken(NeighbourData selectedNeighbour)
     {
         foreach (var roomData in RoomsDictionary.Values)
         {

@@ -39,7 +39,7 @@ public class LevelTilingPreset : SerializedScriptableObject
         if (!WallTilesDictionary.ContainsKey(RightUpKey)) WallTilesDictionary.Add(RightUpKey, null);
         if (!WallTilesDictionary.ContainsKey(LeftDownKey)) WallTilesDictionary.Add(LeftDownKey, null);
         if (!WallTilesDictionary.ContainsKey(RightDownKey)) WallTilesDictionary.Add(RightDownKey, null);
-        
+
         if (!WallTilesDictionary.ContainsKey(LeftDoorWayUp)) WallTilesDictionary.Add(LeftDoorWayUp, null);
         if (!WallTilesDictionary.ContainsKey(LeftDoorWayDown)) WallTilesDictionary.Add(LeftDoorWayDown, null);
         if (!WallTilesDictionary.ContainsKey(RightDoorWayUp)) WallTilesDictionary.Add(RightDoorWayUp, null);

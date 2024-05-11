@@ -30,12 +30,6 @@ public class DungeonGenerator : SerializedMonoBehaviour
     [MinMaxSlider(2, 10), LabelWidth(145f), SerializeField, SuffixLabel("$_roomsCountString")]
     private Vector2Int roomCount = new(5, 7);
 
-    // [MinMaxSlider(1, 4), SerializeField, LabelWidth(145f), SuffixLabel("$_doorwaysCountString")]
-    // private Vector2Int neighboursPerRoom = new Vector2Int(1, 4);
-
-    // [SerializeField, Range(10, 100), LabelWidth(150f), SuffixLabel("% Higher chance -> less variety")]
-    // private float doorwaySpawnChance = 50f;
-
     [HorizontalGroup("Borders", 0.5f, PaddingRight = 15)]
     [BoxGroup("Borders/Room Width"), LabelWidth(100), SerializeField]
     private int minimumWidth;
@@ -51,11 +45,9 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
 #if UNITY_EDITOR
     private string _roomsCountString => $"Min = {roomCount.x}, Max = {roomCount.y}";
-    //private string _doorwaysCountString => $"Min = {neighboursPerRoom.x}, Max = {neighboursPerRoom.y}";
 #endif
 
     private int _roomCount = 0;
-    private int _midRoomOffset = 2;
 
     [Button, HorizontalGroup("Generate Dungeon", PaddingLeft = 15f)]
     public void GenerateDungeon()
@@ -71,50 +63,57 @@ public class DungeonGenerator : SerializedMonoBehaviour
         _roomCount = Random.Range(roomCount.x, roomCount.y + 1);
 
         for (int i = 0; i < _roomCount; i++)
-            GenerateRoom(i);
+        {
+            int roomWidth, roomHeight;
+
+            Vector2Int spawnPosition;
+            Direction takenDirection;
+
+            while (true)
+            {
+                roomWidth = Random.Range(minimumWidth, maximumWidth + 1);
+                roomHeight = Random.Range(minimumHeight, maximumHeight + 1);
+
+                if (roomWidth % 2 == 0) roomWidth += 1;
+                if (roomHeight % 2 == 0) roomHeight += 1;
+
+                if (i == 0)
+                {
+                    spawnPosition = new Vector2Int(-roomWidth / 2, -roomHeight / 2);
+                    takenDirection = Direction.Bottom;
+                    break;
+                }
+
+                if (RoomCanBePlaced(roomWidth, roomHeight, out spawnPosition, out takenDirection))
+                    break;
+            }
+
+            GenerateSingleRoom(i, roomWidth, roomHeight, spawnPosition, takenDirection);
+        }
     }
 
-    private void GenerateRoom(int roomId) //DoorwayDirection doorwayKey, Vector2Int doorwayTilePosition)
+    private void GenerateSingleRoom(int roomId, int roomWidth, int roomHeight, Vector2Int spawnPosition,
+        Direction takenDirection)
     {
-        var roomWidth = Random.Range(minimumWidth, maximumWidth + 1);
-        var roomHeight = Random.Range(minimumHeight, maximumHeight + 1);
-
-        if (roomWidth % 2 == 0) roomWidth += 1;
-        if (roomHeight % 2 == 0) roomHeight += 1;
-
-        HashSet<Vector2Int> floor = GenerateFloor(roomId, roomWidth, roomHeight, out var takenDirection);
+        HashSet<Vector2Int> floor = GenerateFloor(roomWidth, roomHeight, spawnPosition);
         HashSet<Vector2Int> walls = GenerateWalls(floor, out var doorwayPoints,
             out var minX, out var maxX,
             out var minY, out var maxY);
-        
+
         //List<Prop> props = GenerateProps();
         //object props = null;
+
         AddRoomData(roomId, floor, walls, doorwayPoints, takenDirection, new Vector2Int(minX, maxX),
             new Vector2Int(minY, maxY)); //, props);
     }
 
-    private HashSet<Vector2Int> GenerateFloor(int roomId, int roomWidth, int roomHeight, out Direction takenDirection)
+    private HashSet<Vector2Int> GenerateFloor(int roomWidth, int roomHeight, Vector2Int spawnPosition)
     {
         HashSet<Vector2Int> floor = new();
 
-        if (roomId == 0)
-        {
-            for (int i = -roomWidth / 2; i < roomWidth / 2 + 1; i++)
-                for (int j = -roomHeight / 2; j < roomHeight / 2 + 1; j++)
-                    floor.Add(new Vector2Int(i, j));
-
-            takenDirection = Direction.Bottom;
-        }
-        else
-        {
-            RoomData randomRoom = GetRandomFreeRoom();
-            NeighbourData randomNeighbour = GetRandomFreeNeighbour(randomRoom, out takenDirection);
-            Vector2Int spawnPosition = GetSpawnPosition(randomNeighbour, roomWidth, roomHeight);
-
-            for (int i = spawnPosition.x; i < spawnPosition.x + roomWidth; i++)
-                for (int j = spawnPosition.y; j < spawnPosition.y + roomHeight; j++)
-                    floor.Add(new Vector2Int(i, j));
-        }
+        for (int i = spawnPosition.x; i < spawnPosition.x + roomWidth; i++)
+        for (int j = spawnPosition.y; j < spawnPosition.y + roomHeight; j++)
+            floor.Add(new Vector2Int(i, j));
 
         return floor;
     }
@@ -139,11 +138,6 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
         return Vector2Int.zero;
     }
-
-    private RoomData GetRandomFreeRoom() => generationData.GetRandomFreeRoom();
-
-    private NeighbourData GetRandomFreeNeighbour(RoomData randomRoom, out Direction takenDirection) =>
-        generationData.GetRandomFreeNeighbour(randomRoom, out takenDirection);
 
     private HashSet<Vector2Int> GenerateWalls(HashSet<Vector2Int> floor,
         out Dictionary<Direction, Vector2Int> doorwayPoints, out int minX, out int maxX, out int minY, out int maxY)
@@ -220,18 +214,6 @@ public class DungeonGenerator : SerializedMonoBehaviour
         doorwayPoints = FindDoorways(minX, maxX, minY, maxY);
 
         return walls;
-    }
-
-    private Dictionary<Direction, Vector2Int> FindDoorways(int minX, int maxX, int minY, int maxY)
-    {
-        Dictionary<Direction, Vector2Int> doorways = new();
-
-        doorways.Add(Direction.Left, new Vector2Int(minX - 1, (minY + maxY) / 2));
-        doorways.Add(Direction.Bottom, new Vector2Int((minX + maxX) / 2, minY - 1));
-        doorways.Add(Direction.Right, new Vector2Int(maxX + 1, (minY + maxY) / 2));
-        doorways.Add(Direction.Top, new Vector2Int((minX + maxX) / 2, maxY + 2));
-
-        return doorways;
     }
 
     private void ConnectAndPaintRooms()
@@ -347,25 +329,65 @@ public class DungeonGenerator : SerializedMonoBehaviour
                     PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayUpUp],
                         topRightDoorWayUp);
                 }
-                
+
                 PaintTiles(floor, floorTilemap, tilingPreset.FloorTile);
             }
         }
     }
 
+    private bool RoomCanBePlaced(int roomWidth, int roomHeight, out Vector2Int spawnPosition,
+        out Direction takenDirection)
+    {
+        RoomData randomRoom = GetRandomFreeRoom();
+        NeighbourData randomNeighbour = GetRandomFreeNeighbour(randomRoom, out takenDirection);
+        spawnPosition = GetSpawnPosition(randomNeighbour, roomWidth, roomHeight);
+
+        for (int i = spawnPosition.x; i < spawnPosition.x + roomWidth; i++)
+        for (int j = spawnPosition.y; j < spawnPosition.y + roomHeight; j++)
+        {
+            if (TileCanBePlaced(new Vector2Int(i, j)) == false)
+                return false;
+        }
+
+        MarkNeighbourTaken(randomNeighbour);
+
+        return true;
+    }
+
+    private bool TileCanBePlaced(Vector2Int tilePosition)
+    {
+        var tile = new Vector3Int(tilePosition.x, tilePosition.y, 0);
+        return wallTilemap.GetTile(tile) == null && floorTilemap.GetTile(tile) == null;
+    }
+
+    private Dictionary<Direction, Vector2Int> FindDoorways(int minX, int maxX, int minY, int maxY)
+    {
+        Dictionary<Direction, Vector2Int> doorways = new();
+
+        doorways.Add(Direction.Left, new Vector2Int(minX - 1, (minY + maxY) / 2));
+        doorways.Add(Direction.Bottom, new Vector2Int((minX + maxX) / 2, minY - 1));
+        doorways.Add(Direction.Right, new Vector2Int(maxX + 1, (minY + maxY) / 2));
+        doorways.Add(Direction.Top, new Vector2Int((minX + maxX) / 2, maxY + 2));
+
+        return doorways;
+    }
+
+    private RoomData GetRandomFreeRoom() => generationData.GetRandomFreeRoom();
+
+    private NeighbourData GetRandomFreeNeighbour(RoomData randomRoom, out Direction takenDirection) =>
+        generationData.GetRandomFreeNeighbour(randomRoom, out takenDirection);
+
+    private void MarkNeighbourTaken(NeighbourData neighbour) => generationData.MarkNeighbourTaken(neighbour);
+
     private void AddRoomData(int roomId, HashSet<Vector2Int> floor, HashSet<Vector2Int> walls,
         Dictionary<Direction, Vector2Int> doorwayPoints, Direction takenDirection, Vector2Int rangeX,
-        Vector2Int rangeY) //, object props)
-    {
+        Vector2Int rangeY) =>
         generationData.AddRoomData(roomId, floor, walls, doorwayPoints, takenDirection, rangeX, rangeY);
-    }
 
     private void PaintTiles(IEnumerable<Vector2Int> floorPositions, Tilemap tilemap, TileBase tile)
     {
         foreach (var position in floorPositions)
-        {
             PaintSingleTile(tilemap, tile, position);
-        }
     }
 
     private void PaintSingleTile(Tilemap tilemap, TileBase tile, Vector2Int position)
