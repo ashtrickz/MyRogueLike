@@ -30,11 +30,11 @@ public class DungeonGenerator : SerializedMonoBehaviour
     [MinMaxSlider(2, 10), LabelWidth(145f), SerializeField, SuffixLabel("$_roomsCountString")]
     private Vector2Int roomCount = new(5, 7);
 
-    [MinMaxSlider(1, 4), SerializeField, LabelWidth(145f), SuffixLabel("$_doorwaysCountString")]
-    private Vector2Int neighboursPerRoom = new Vector2Int(1, 4);
+    // [MinMaxSlider(1, 4), SerializeField, LabelWidth(145f), SuffixLabel("$_doorwaysCountString")]
+    // private Vector2Int neighboursPerRoom = new Vector2Int(1, 4);
 
-    [SerializeField, Range(10, 100), LabelWidth(150f), SuffixLabel("% Higher chance -> less variety")]
-    private float doorwaySpawnChance = 50f;
+    // [SerializeField, Range(10, 100), LabelWidth(150f), SuffixLabel("% Higher chance -> less variety")]
+    // private float doorwaySpawnChance = 50f;
 
     [HorizontalGroup("Borders", 0.5f, PaddingRight = 15)]
     [BoxGroup("Borders/Room Width"), LabelWidth(100), SerializeField]
@@ -51,7 +51,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
 #if UNITY_EDITOR
     private string _roomsCountString => $"Min = {roomCount.x}, Max = {roomCount.y}";
-    private string _doorwaysCountString => $"Min = {neighboursPerRoom.x}, Max = {neighboursPerRoom.y}";
+    //private string _doorwaysCountString => $"Min = {neighboursPerRoom.x}, Max = {neighboursPerRoom.y}";
 #endif
 
     private int _roomCount = 0;
@@ -62,16 +62,16 @@ public class DungeonGenerator : SerializedMonoBehaviour
     {
         ClearDungeon();
 
+        GenerateRooms();
+        GenerateDoorways();
+    }
+
+    private void GenerateRooms()
+    {
         _roomCount = Random.Range(roomCount.x, roomCount.y + 1);
 
-        generationData = ScriptableObject.CreateInstance<DungeonGenerationData>();
-
         for (int i = 0; i < _roomCount; i++)
-        {
             GenerateRoom(i);
-        }
-
-        GenerateDoorways();
     }
 
     private void GenerateRoom(int roomId) //DoorwayDirection doorwayKey, Vector2Int doorwayTilePosition)
@@ -82,25 +82,15 @@ public class DungeonGenerator : SerializedMonoBehaviour
         if (roomWidth % 2 == 0) roomWidth += 1;
         if (roomHeight % 2 == 0) roomHeight += 1;
 
-        Dictionary<Direction, Vector2Int> doorwayPoints = new();
-
         HashSet<Vector2Int> floor = GenerateFloor(roomId, roomWidth, roomHeight, out var takenDirection);
-        HashSet<Vector2Int> walls = GenerateWalls(floor, out doorwayPoints, out var minX, out var maxX, out var minY,
-            out var maxY);
-
-        PaintTiles(floor, floorTilemap, tilingPreset.FloorTile);
-
+        HashSet<Vector2Int> walls = GenerateWalls(floor, out var doorwayPoints,
+            out var minX, out var maxX,
+            out var minY, out var maxY);
+        
         //List<Prop> props = GenerateProps();
         //object props = null;
         AddRoomData(roomId, floor, walls, doorwayPoints, takenDirection, new Vector2Int(minX, maxX),
             new Vector2Int(minY, maxY)); //, props);
-    }
-
-    private void AddRoomData(int roomId, HashSet<Vector2Int> floor, HashSet<Vector2Int> walls,
-        Dictionary<Direction, Vector2Int> doorwayPoints, Direction takenDirection, Vector2Int rangeX,
-        Vector2Int rangeY) //, object props)
-    {
-        generationData.AddRoomData(roomId, floor, walls, doorwayPoints, takenDirection, rangeX, rangeY);
     }
 
     private HashSet<Vector2Int> GenerateFloor(int roomId, int roomWidth, int roomHeight, out Direction takenDirection)
@@ -110,12 +100,8 @@ public class DungeonGenerator : SerializedMonoBehaviour
         if (roomId == 0)
         {
             for (int i = -roomWidth / 2; i < roomWidth / 2 + 1; i++)
-            {
                 for (int j = -roomHeight / 2; j < roomHeight / 2 + 1; j++)
-                {
                     floor.Add(new Vector2Int(i, j));
-                }
-            }
 
             takenDirection = Direction.Bottom;
         }
@@ -125,14 +111,9 @@ public class DungeonGenerator : SerializedMonoBehaviour
             NeighbourData randomNeighbour = GetRandomFreeNeighbour(randomRoom, out takenDirection);
             Vector2Int spawnPosition = GetSpawnPosition(randomNeighbour, roomWidth, roomHeight);
 
-
             for (int i = spawnPosition.x; i < spawnPosition.x + roomWidth; i++)
-            {
                 for (int j = spawnPosition.y; j < spawnPosition.y + roomHeight; j++)
-                {
                     floor.Add(new Vector2Int(i, j));
-                }
-            }
         }
 
         return floor;
@@ -259,13 +240,13 @@ public class DungeonGenerator : SerializedMonoBehaviour
         {
             int minX = roomData.Value.RangeX.x;
             int maxX = roomData.Value.RangeX.y;
-            
+
             int minY = roomData.Value.RangeY.x;
             int maxY = roomData.Value.RangeY.y;
 
             int roomWidth = Mathf.Abs(maxX - minX);
             int roomHeight = Mathf.Abs(maxY - minY);
-            
+
             var floor = roomData.Value.Floor;
             var walls = roomData.Value.Walls;
 
@@ -352,7 +333,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
                     walls.Remove(doorwayTilePosition2);
                     floor.Add(doorwayTilePosition1);
                     floor.Add(doorwayTilePosition2);
-                    
+
                     PaintSingleTile(wallTilemap, null, doorwayTilePosition1);
                     PaintSingleTile(wallTilemap, null, doorwayTilePosition2);
 
@@ -366,8 +347,17 @@ public class DungeonGenerator : SerializedMonoBehaviour
                     PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayUpUp],
                         topRightDoorWayUp);
                 }
+                
+                PaintTiles(floor, floorTilemap, tilingPreset.FloorTile);
             }
         }
+    }
+
+    private void AddRoomData(int roomId, HashSet<Vector2Int> floor, HashSet<Vector2Int> walls,
+        Dictionary<Direction, Vector2Int> doorwayPoints, Direction takenDirection, Vector2Int rangeX,
+        Vector2Int rangeY) //, object props)
+    {
+        generationData.AddRoomData(roomId, floor, walls, doorwayPoints, takenDirection, rangeX, rangeY);
     }
 
     private void PaintTiles(IEnumerable<Vector2Int> floorPositions, Tilemap tilemap, TileBase tile)
