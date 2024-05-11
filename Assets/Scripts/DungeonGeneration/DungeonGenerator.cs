@@ -240,94 +240,98 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
             foreach (var direction in takenDirections)
             {
-                if (direction == Direction.Left)
+                switch (direction)
                 {
-                    var leftDoorWayUp = new Vector2Int(minX - 1, minY + roomHeight / 2 + 1);
-                    var leftDoorWayUpUp = new Vector2Int(leftDoorWayUp.x, leftDoorWayUp.y + 1);
-                    var leftDoorWayDown = new Vector2Int(minX - 1, minY + roomHeight / 2 - 1);
+                    case Direction.Left:
+                    {
+                        var leftDoorWayUp = new Vector2Int(minX - 1, minY + roomHeight / 2 + 1);
+                        var leftDoorWayUpUp = new Vector2Int(leftDoorWayUp.x, leftDoorWayUp.y + 1);
+                        var leftDoorWayDown = new Vector2Int(minX - 1, minY + roomHeight / 2 - 1);
 
-                    Vector2Int doorwayTilePosition = new Vector2Int(minX - 1, minY + roomHeight / 2);
+                        Vector2Int doorwayTilePosition = new Vector2Int(minX - 1, minY + roomHeight / 2);
 
-                    walls.Remove(doorwayTilePosition);
-                    floor.Add(doorwayTilePosition);
+                        walls.Remove(doorwayTilePosition);
+                        floor.Add(doorwayTilePosition);
 
-                    PaintSingleTile(wallTilemap, null, doorwayTilePosition);
+                        PaintSingleTile(wallTilemap, null, doorwayTilePosition);
 
-                    PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftDoorWayUp],
-                        leftDoorWayUp);
-                    PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftDoorWayUpUp],
-                        leftDoorWayUpUp);
-                    PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftDoorWayDown],
-                        leftDoorWayDown);
-                }
+                        PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftDoorWayUp],
+                            leftDoorWayUp);
+                        PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftDoorWayUpUp],
+                            leftDoorWayUpUp);
+                        PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftDoorWayDown],
+                            leftDoorWayDown);
+                        break;
+                    }
+                    case Direction.Bottom:
+                    {
+                        var bottomLeftDoorWay = new Vector2Int(minX + roomWidth / 2 - 1, minY - 1);
+                        var bottomRightDoorWay = new Vector2Int(minX + roomWidth / 2 + 1, minY - 1);
 
-                if (direction == Direction.Bottom)
-                {
-                    var bottomLeftDoorWay = new Vector2Int(minX + roomWidth / 2 - 1, minY - 1);
-                    var bottomRightDoorWay = new Vector2Int(minX + roomWidth / 2 + 1, minY - 1);
+                        Vector2Int doorwayTilePosition = new Vector2Int(minX + roomWidth / 2, minY - 1);
 
-                    Vector2Int doorwayTilePosition = new Vector2Int(minX + roomWidth / 2, minY - 1);
+                        walls.Remove(doorwayTilePosition);
+                        floor.Add(doorwayTilePosition);
 
-                    walls.Remove(doorwayTilePosition);
-                    floor.Add(doorwayTilePosition);
+                        PaintSingleTile(wallTilemap, null, doorwayTilePosition);
 
-                    PaintSingleTile(wallTilemap, null, doorwayTilePosition);
+                        PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftDoorWayDown],
+                            bottomLeftDoorWay);
+                        PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayDown],
+                            bottomRightDoorWay);
+                        break;
+                    }
+                    case Direction.Right:
+                    {
+                        var rightDoorWayUp = new Vector2Int(maxX + 1, minY + roomHeight / 2 + 1);
+                        var rightDoorWayUpUp = new Vector2Int(rightDoorWayUp.x, rightDoorWayUp.y + 1);
+                        var rightDoorWayDown = new Vector2Int(maxX + 1, minY + roomHeight / 2 - 1);
 
-                    PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftDoorWayDown],
-                        bottomLeftDoorWay);
-                    PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayDown],
-                        bottomRightDoorWay);
-                }
+                        Vector2Int doorwayTilePosition = new Vector2Int(maxX + 1, minY + roomHeight / 2);
 
-                if (direction == Direction.Right)
-                {
-                    var rightDoorWayUp = new Vector2Int(maxX + 1, minY + roomHeight / 2 + 1);
-                    var rightDoorWayUpUp = new Vector2Int(rightDoorWayUp.x, rightDoorWayUp.y + 1);
-                    var rightDoorWayDown = new Vector2Int(maxX + 1, minY + roomHeight / 2 - 1);
+                        walls.Remove(doorwayTilePosition);
+                        floor.Add(doorwayTilePosition);
 
-                    Vector2Int doorwayTilePosition = new Vector2Int(maxX + 1, minY + roomHeight / 2);
+                        PaintSingleTile(wallTilemap, null, doorwayTilePosition);
 
-                    walls.Remove(doorwayTilePosition);
-                    floor.Add(doorwayTilePosition);
+                        PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayUp],
+                            rightDoorWayUp);
+                        PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayUpUp],
+                            rightDoorWayUpUp);
+                        PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayDown],
+                            rightDoorWayDown);
+                        break;
+                    }
+                    case Direction.Top:
+                    {
+                        var topLeftDoorWay = new Vector2Int(minX + roomWidth / 2 - 1, maxY + 1);
+                        var topRightDoorWay = new Vector2Int(minX + roomWidth / 2 + 1, maxY + 1);
 
-                    PaintSingleTile(wallTilemap, null, doorwayTilePosition);
+                        var topLeftDoorWayUp = new Vector2Int(topLeftDoorWay.x, topRightDoorWay.y + 1);
+                        var topRightDoorWayUp = new Vector2Int(topRightDoorWay.x, topRightDoorWay.y + 1);
 
-                    PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayUp],
-                        rightDoorWayUp);
-                    PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayUpUp],
-                        rightDoorWayUpUp);
-                    PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayDown],
-                        rightDoorWayDown);
-                }
+                        Vector2Int doorwayTilePosition1 = new Vector2Int(minX + roomWidth / 2, maxY + 1);
+                        Vector2Int doorwayTilePosition2 = new Vector2Int(minX + roomWidth / 2, maxY + 2);
 
-                if (direction == Direction.Top)
-                {
-                    var topLeftDoorWay = new Vector2Int(minX + roomWidth / 2 - 1, maxY + 1);
-                    var topRightDoorWay = new Vector2Int(minX + roomWidth / 2 + 1, maxY + 1);
+                        walls.Remove(doorwayTilePosition1);
+                        walls.Remove(doorwayTilePosition2);
+                        floor.Add(doorwayTilePosition1);
+                        floor.Add(doorwayTilePosition2);
 
-                    var topLeftDoorWayUp = new Vector2Int(topLeftDoorWay.x, topRightDoorWay.y + 1);
-                    var topRightDoorWayUp = new Vector2Int(topRightDoorWay.x, topRightDoorWay.y + 1);
+                        PaintSingleTile(wallTilemap, null, doorwayTilePosition1);
+                        PaintSingleTile(wallTilemap, null, doorwayTilePosition2);
 
-                    Vector2Int doorwayTilePosition1 = new Vector2Int(minX + roomWidth / 2, maxY + 1);
-                    Vector2Int doorwayTilePosition2 = new Vector2Int(minX + roomWidth / 2, maxY + 2);
+                        PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftDoorWayUp],
+                            topLeftDoorWay);
+                        PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayUp],
+                            topRightDoorWay);
 
-                    walls.Remove(doorwayTilePosition1);
-                    walls.Remove(doorwayTilePosition2);
-                    floor.Add(doorwayTilePosition1);
-                    floor.Add(doorwayTilePosition2);
-
-                    PaintSingleTile(wallTilemap, null, doorwayTilePosition1);
-                    PaintSingleTile(wallTilemap, null, doorwayTilePosition2);
-
-                    PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftDoorWayUp],
-                        topLeftDoorWay);
-                    PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayUp],
-                        topRightDoorWay);
-
-                    PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftDoorWayUpUp],
-                        topLeftDoorWayUp);
-                    PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayUpUp],
-                        topRightDoorWayUp);
+                        PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.LeftDoorWayUpUp],
+                            topLeftDoorWayUp);
+                        PaintSingleTile(wallTilemap, tilingPreset.WallTilesDictionary[tilingPreset.RightDoorWayUpUp],
+                            topRightDoorWayUp);
+                        break;
+                    }
                 }
 
                 PaintTiles(floor, floorTilemap, tilingPreset.FloorTile);
