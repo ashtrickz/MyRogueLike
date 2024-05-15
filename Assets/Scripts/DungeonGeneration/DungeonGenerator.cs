@@ -375,12 +375,15 @@ public class DungeonGenerator : SerializedMonoBehaviour
         {
             for (int i = minY; i <= maxY; i++)
             {
+                if (i == (minY + maxY) / 2) continue;
                 potentialPropPositions.Add(new Vector2(minX + .5f, i));
                 potentialPropPositions.Add(new Vector2(maxX + .5f, i));
             }
 
             for (int i = minX; i <= maxX; i++)
             {
+                if (i == (minX + maxX) / 2) continue;
+                
                 var minValue = new Vector2(i + .5f, minY);
                 var maxValue = new Vector2(i + .5f, maxY);
                 
