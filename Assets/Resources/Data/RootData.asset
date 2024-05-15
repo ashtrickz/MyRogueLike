@@ -15,111 +15,18 @@ MonoBehaviour:
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
-    ReferencedUnityObjects:
-    - {fileID: 9200588129157037311, guid: 779611d12eb03dd4681cf5ca715dfb6b, type: 3}
-    - {fileID: 4415036415276822162, guid: 75e213ddb6a51b34190df524fb07d301, type: 3}
-    - {fileID: 1510997536548564909, guid: 0243c7674ee9f4a40ad0964b41121884, type: 3}
-    - {fileID: 5976612652660041802, guid: 0934834560dd25c449a428f36842f435, type: 3}
-    - {fileID: 6876591712620609834, guid: 85390bfe50ee5b74abd751e648cc42b3, type: 3}
-    - {fileID: 607112125949531296, guid: 9bd31c155d1b8f8408339b0749ecdb9c, type: 3}
+    ReferencedUnityObjects: []
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
-    SerializationNodes:
-    - Name: PropsDictionary
-      Entry: 7
-      Data: 0|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[UnityEngine.GameObject,
-        UnityEngine.CoreModule]], mscorlib
-    - Name: comparer
-      Entry: 7
-      Data: 1|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
-        mscorlib]], mscorlib
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 12
-      Data: 6
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 1
-      Data: Prob_BigCrate
-    - Name: $v
-      Entry: 10
-      Data: 0
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 1
-      Data: Barrel
-    - Name: $v
-      Entry: 10
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 1
-      Data: Pot_A
-    - Name: $v
-      Entry: 10
-      Data: 2
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 1
-      Data: Pot_B
-    - Name: $v
-      Entry: 10
-      Data: 3
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 1
-      Data: Pot_C
-    - Name: $v
-      Entry: 10
-      Data: 4
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 1
-      Data: SmallCrate
-    - Name: $v
-      Entry: 10
-      Data: 5
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-  LevelGenerationData: {fileID: 11400000, guid: 33c7d64be6116474eb915c34f1278313,
-    type: 2}
-  IdentifierPrefab: {fileID: 1012612584179430022, guid: 55292d3dcaca18b47967ef2859b4649a,
+    SerializationNodes: []
+  PropPrefab: {fileID: 7530552477896662738, guid: 5aaf45065fe8f4b48b699ca04f8db01d,
     type: 3}
+  PropsList:
+  - {fileID: 11400000, guid: cae8eb22ea3de7a4689667cedcfb0675, type: 2}
+  - {fileID: 11400000, guid: c4d68648125afd240aa112f68e5fdf6c, type: 2}
+  - {fileID: 11400000, guid: 0c9f5b1d49080d94da2c014cc6c94f0f, type: 2}
+  - {fileID: 11400000, guid: eedf75dd809b8ba4e8078c1b015bffc3, type: 2}
+  - {fileID: 11400000, guid: 8fb792dc44970674e938ae731ccce803, type: 2}
+  - {fileID: 11400000, guid: facb1f9b27df37342969420d51e4f55f, type: 2}

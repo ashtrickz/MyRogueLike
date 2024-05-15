@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DungeonGeneration;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -36,21 +37,8 @@ public class RootData : SerializedScriptableObject
 
     #endregion
 
-    [InlineEditor, LabelText("$_roomsCount")]
-    public LevelGenerationData LevelGenerationData;
+    public PropBehaviour PropPrefab;
+    public List<PropData> PropsList = new();
 
-    public GameObject IdentifierPrefab;
-
-    [FoldoutGroup("Props")] public readonly Dictionary<string, GameObject> PropsDictionary = new();
-    
-    [FoldoutGroup("Props"), Button]
-    public void AddProp(GameObject[] props)
-    {
-        foreach (var prop in props)
-        {
-            PropsDictionary.Add(prop.name.Replace("Prop_", string.Empty), prop);
-        }
-    } 
-    
-    private string _roomsCount => $"Generated {LevelGenerationData.RoomsDictionary.Count} Rooms";
+    public PropData GetRandomPropData() => PropsList[Random.Range(0, PropsList.Count)];
 }

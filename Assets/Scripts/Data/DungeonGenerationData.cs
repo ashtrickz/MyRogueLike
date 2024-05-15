@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using ProceduralGeneration;
+using DungeonGeneration;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities;
@@ -23,9 +23,9 @@ public class DungeonGenerationData : SerializedScriptableObject
     }
 
     public void AddRoomData(int roomId, HashSet<Vector2Int> floor, HashSet<Vector2Int> walls,
-        Dictionary<Direction, Vector2Int> doorwayPoints, Direction takenDirection, Vector2Int rangeX, Vector2Int rangeY)
+        Dictionary<Direction, Vector2Int> doorwayPoints, Direction takenDirection, Vector2Int rangeX, Vector2Int rangeY, Dictionary<Vector2, PropData> propsDictionary)
     {
-        RoomsDictionary.Add(roomId, new RoomData(floor, walls, doorwayPoints, takenDirection, rangeX, rangeY));
+        RoomsDictionary.Add(roomId, new RoomData(floor, walls, doorwayPoints, takenDirection, rangeX, rangeY, propsDictionary));
     }
 
     public RoomData GetRandomFreeRoom()
@@ -96,9 +96,10 @@ public class DungeonGenerationData : SerializedScriptableObject
         [field: SerializeField, DisplayAsString] public Vector2Int RangeY { get; private set; }
         
         [field: SerializeField] public List<NeighbourData> NeighboursList { get; private set; }
+        [field: SerializeField] public Dictionary<Vector2, PropData> PropsDictionary { get; private set; }
 
         public RoomData(HashSet<Vector2Int> floor, HashSet<Vector2Int> walls,
-            Dictionary<Direction, Vector2Int> doorwayPoints, Direction takenDirection, Vector2Int rangeX, Vector2Int rangeY)
+            Dictionary<Direction, Vector2Int> doorwayPoints, Direction takenDirection, Vector2Int rangeX, Vector2Int rangeY, Dictionary<Vector2, PropData> propsDictionary)
         {
             Floor = floor;
             Walls = walls;
@@ -109,6 +110,11 @@ public class DungeonGenerationData : SerializedScriptableObject
             NeighboursList = new();
             foreach (var doorwayPoint in doorwayPoints)
                 NeighboursList.Add(new NeighbourData(doorwayPoint.Key, doorwayPoint.Value));
+
+            PropsDictionary = new();
+            foreach (var propData in propsDictionary)
+                PropsDictionary.Add(propData.Key, propData.Value);
+            
             MarkNeighbourAsTaken(NeighboursList.Single(dir => dir.DoorwayDirection == takenDirection));
         }
 

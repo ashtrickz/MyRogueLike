@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using ProceduralGeneration;
+using DungeonGeneration;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor.Drawers;
 using Sirenix.Utilities;
@@ -24,11 +24,19 @@ public class DungeonGenerator : SerializedMonoBehaviour
     [HorizontalGroup("Tilemaps", .5f), LabelWidth(80), SerializeField]
     private Tilemap floorTilemap, wallTilemap;
 
+    [SerializeField] private Transform propsParent;
+
     [Title("Generation Data", titleAlignment: TitleAlignments.Centered), InlineEditor, SerializeField]
     private DungeonGenerationData generationData;
 
-    [MinMaxSlider(2, 10), LabelWidth(145f), SerializeField, SuffixLabel("$_roomsCountString")]
+    [MinMaxSlider(2, 10), LabelWidth(120f), SerializeField, SuffixLabel("$_roomsCountString")]
     private Vector2Int roomCount = new(5, 7);
+
+    [HorizontalGroup("Props"), MinMaxSlider(2, 10), LabelWidth(120f), SerializeField]
+    private Vector2Int propsPerRoom = new(5, 7);
+
+    [HorizontalGroup("Props", width: 100f), SerializeField, LabelWidth(85f)]
+    private bool alignByWalls = false;
 
     [HorizontalGroup("Borders", 0.5f, PaddingRight = 15)]
     [BoxGroup("Borders/Room Width"), LabelWidth(100), SerializeField]
@@ -100,11 +108,11 @@ public class DungeonGenerator : SerializedMonoBehaviour
             out var minX, out var maxX,
             out var minY, out var maxY);
 
-        //List<Prop> props = GenerateProps();
-        //object props = null;
+        Dictionary<Vector2, PropData> props =
+            GenerateProps(minX, maxX, minY, maxY, Random.Range(propsPerRoom.x, propsPerRoom.y + 1));
 
         AddRoomData(roomId, floor, walls, doorwayPoints, takenDirection, new Vector2Int(minX, maxX),
-            new Vector2Int(minY, maxY)); //, props);
+            new Vector2Int(minY, maxY), props);
     }
 
     private HashSet<Vector2Int> GenerateFloor(int roomWidth, int roomHeight, Vector2Int spawnPosition)
@@ -339,6 +347,69 @@ public class DungeonGenerator : SerializedMonoBehaviour
         }
     }
 
+    private Dictionary<Vector2, PropData> GenerateProps(int minX, int maxX, int minY, int maxY, int propCount)
+    {
+        Dictionary<Vector2, PropData> propsDictionary = new();
+
+        List<Vector2> propsPositions = FindPropsPositions(minX, maxX, minY, maxY, propCount);
+
+        var root = RootData.RootInstance;
+
+        foreach (var position in propsPositions)
+        {
+            var prop = Instantiate(root.PropPrefab, propsParent);
+            prop.transform.position = (Vector2) position;
+            prop.Init(root.GetRandomPropData());
+            propsDictionary.Add(position, prop.GetData());
+        }
+
+        return propsDictionary;
+    }
+
+    private List<Vector2> FindPropsPositions(int minX, int maxX, int minY, int maxY, int propCount)
+    {
+        List<Vector2> potentialPropPositions = new();
+        List<Vector2> propSpawnPositions = new();
+
+        if (alignByWalls)
+        {
+            for (int i = minY; i <= maxY; i++)
+            {
+                potentialPropPositions.Add(new Vector2(minX + .5f, i));
+                potentialPropPositions.Add(new Vector2(maxX + .5f, i));
+            }
+
+            for (int i = minX; i <= maxX; i++)
+            {
+                var minValue = new Vector2(i + .5f, minY);
+                var maxValue = new Vector2(i + .5f, maxY);
+                
+                if (!potentialPropPositions.Contains(minValue)) potentialPropPositions.Add(minValue);
+                if (!potentialPropPositions.Contains(maxValue)) potentialPropPositions.Add(maxValue);
+            }
+        }
+        else
+        {
+            for (int i = minX; i <= maxX; i++)
+            {
+                for (int j = minY; j <= maxY; j++)
+                {
+                    potentialPropPositions.Add(new Vector2(i + .5f, j));
+                }
+            }
+        }
+
+
+        for (int i = 0; i < propCount; i++)
+        {
+            var pickedPosition = potentialPropPositions[Random.Range(0, potentialPropPositions.Count)];
+            propSpawnPositions.Add(pickedPosition);
+            potentialPropPositions.Remove(pickedPosition);
+        }
+
+        return propSpawnPositions;
+    }
+
     private bool RoomCanBePlaced(int roomWidth, int roomHeight, out Vector2Int spawnPosition,
         out Direction takenDirection)
     {
@@ -387,8 +458,9 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
     private void AddRoomData(int roomId, HashSet<Vector2Int> floor, HashSet<Vector2Int> walls,
         Dictionary<Direction, Vector2Int> doorwayPoints, Direction takenDirection, Vector2Int rangeX,
-        Vector2Int rangeY) =>
-        generationData.AddRoomData(roomId, floor, walls, doorwayPoints, takenDirection, rangeX, rangeY);
+        Vector2Int rangeY, Dictionary<Vector2, PropData> propsDictionary) =>
+        generationData.AddRoomData(roomId, floor, walls, doorwayPoints, takenDirection, rangeX, rangeY,
+            propsDictionary);
 
     private void PaintTiles(IEnumerable<Vector2Int> floorPositions, Tilemap tilemap, TileBase tile)
     {
@@ -407,6 +479,15 @@ public class DungeonGenerator : SerializedMonoBehaviour
     {
         floorTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
+
+        while (propsParent.childCount != 0)
+        {
+            foreach (Transform child in propsParent)
+            {
+                DestroyImmediate(child.gameObject);
+            }
+        }
+
         generationData = ScriptableObject.CreateInstance<DungeonGenerationData>();
     }
 }

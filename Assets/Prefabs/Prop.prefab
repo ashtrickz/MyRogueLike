@@ -57,7 +57,7 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  collider: {fileID: 1225963085737086737}
+  propCollider: {fileID: 1225963085737086737}
   rigidbodyData: {fileID: 2702343104467243819}
   propSprite: {fileID: 3898234403518802238}
   shadowSprite: {fileID: 3255615756589017315}

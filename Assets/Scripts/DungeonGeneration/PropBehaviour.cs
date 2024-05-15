@@ -6,7 +6,7 @@ namespace DungeonGeneration
     public class PropBehaviour : SerializedMonoBehaviour
     {
         [Title("References", titleAlignment: TitleAlignments.Centered), SerializeField] 
-        private PolygonCollider2D collider;
+        private PolygonCollider2D propCollider;
         [SerializeField] 
         private Rigidbody2D rigidbodyData;
         [SerializeField, LabelText("Prop")] 
@@ -23,7 +23,7 @@ namespace DungeonGeneration
         public void Init(PropData data)
         {
             propData = data;
-            collider.points = propData.colliderPoints;
+            propCollider.points = propData.colliderPoints;
             propSprite.sprite = propData.propSprite;
             shadowSprite.sprite = propData.shadowSprite;
 
@@ -34,13 +34,15 @@ namespace DungeonGeneration
         [Button]
         public void SaveData(PropData data, bool saveOnlyCollider)
         {
-            data.colliderPoints = collider.points;
+            data.colliderPoints = propCollider.points;
             if (saveOnlyCollider) return;
             
             data.propSprite = propSprite.sprite;
             data.shadowSprite = shadowSprite.sprite;
             data.durability = propData.durability;
         }
-        
+
+        public PropData GetData() => propData;
+
     }
 }
