@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Data;
 using Helpers;
+using Mirror;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
@@ -10,7 +11,7 @@ using UnityEngine.InputSystem;
 using Random = UnityEngine.Random;
 using AnimationState = Data.AnimationData.AnimationState;
 
-public class PlayerBehaviour : SerializedMonoBehaviour
+public class PlayerBehaviour : NetworkBehaviour
 {
     [SerializeField, InlineEditor] private AnimationData animationData;
     [SerializeField] private Animator animator;
@@ -23,22 +24,31 @@ public class PlayerBehaviour : SerializedMonoBehaviour
 
     private void Start()
     {
+        if (!isLocalPlayer) return;
+        
         PlayerControls = new();
         PlayerControls.Enable();
         
         _stateMachine = new StateMachine(this, animationData);
     }
     
+    [ClientCallback]
     private void Update()
     {
+        if (!isLocalPlayer) return;
+        
         _stateMachine.State.Tick();
     }
-
+    
+    [ClientCallback]
     private void FixedUpdate()
     {
+        if (!isLocalPlayer) return;
+        
         _stateMachine.State.FixedTick();
     }
     
+    [ClientCallback]
     public void PlayStateAnimation(string animationHash)
     {
         animator.Play(animationHash);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Mirror
@@ -22,7 +23,7 @@ namespace Mirror
     // [RequireComponent(typeof(NetworkIdentity))] disabled to allow child NetworkBehaviours
     [AddComponentMenu("")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/networkbehaviour")]
-    public abstract class NetworkBehaviour : MonoBehaviour
+    public abstract class NetworkBehaviour : SerializedMonoBehaviour
     {
         /// <summary>Sync direction for OnSerialize. ServerToClient by default. ClientToServer for client authority.</summary>
         [Tooltip("Server Authority calls OnSerialize on the server and syncs it to clients.\n\nClient Authority calls OnSerialize on the owning client, syncs it to server, which then broadcasts it to all other clients.\n\nUse server authority for cheat safety.")]

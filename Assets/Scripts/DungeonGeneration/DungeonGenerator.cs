@@ -21,6 +21,8 @@ public class DungeonGenerator : SerializedMonoBehaviour
     [Title("References", titleAlignment: TitleAlignments.Centered), InlineEditor, SerializeField]
     private LevelTilingPreset tilingPreset;
 
+    [SerializeField] private NetworkTilemapPainter tilemapPainter;
+
     [HorizontalGroup("Tilemaps", .5f), LabelWidth(80), SerializeField]
     private Tilemap floorTilemap, wallTilemap;
 
@@ -55,6 +57,9 @@ public class DungeonGenerator : SerializedMonoBehaviour
     private string _roomsCountString => $"Min = {roomCount.x}, Max = {roomCount.y}";
 #endif
 
+    public Tilemap FloorTilemap => floorTilemap;
+    public Tilemap WallTilemap => wallTilemap;
+    
     private int _roomCount = 0;
 
     [Button, HorizontalGroup("Generate Dungeon", PaddingLeft = 15f)]
@@ -64,6 +69,8 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
         GenerateRooms();
         ConnectAndPaintRooms();
+
+        tilemapPainter.SetDungeonData(generationData, floorTilemap, wallTilemap);
     }
 
     private void GenerateRooms()
@@ -465,17 +472,11 @@ public class DungeonGenerator : SerializedMonoBehaviour
         generationData.AddRoomData(roomId, floor, walls, doorwayPoints, takenDirection, rangeX, rangeY,
             propsDictionary);
 
-    private void PaintTiles(IEnumerable<Vector2Int> floorPositions, Tilemap tilemap, TileBase tile)
-    {
-        foreach (var position in floorPositions)
-            PaintSingleTile(tilemap, tile, position);
-    }
+    private void PaintTiles(IEnumerable<Vector2Int> floorPositions, Tilemap tilemap, TileBase tile) 
+        => tilemapPainter.PaintTiles(floorPositions, tilemap, tile);
 
-    private void PaintSingleTile(Tilemap tilemap, TileBase tile, Vector2Int position)
-    {
-        var tilePosition = tilemap.WorldToCell((Vector3Int) position);
-        tilemap.SetTile(tilePosition, tile);
-    }
+    private void PaintSingleTile(Tilemap tilemap, TileBase tile, Vector2Int position) 
+        => tilemapPainter.PaintSingleTile(tilemap, tile, position);
 
     [Button, HorizontalGroup("Generate Dungeon", PaddingLeft = 15, MarginRight = 0.05f)]
     private void ClearDungeon()

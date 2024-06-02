@@ -71,4 +71,4 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-  MoveSpeed: 1
+  MoveSpeed: 0.1
