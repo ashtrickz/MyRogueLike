@@ -2,8 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Data;
+using Helpers;
 using Sirenix.OdinInspector;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Random = UnityEngine.Random;
 using AnimationState = Data.AnimationData.AnimationState;
 
@@ -12,28 +15,41 @@ public class PlayerBehaviour : SerializedMonoBehaviour
     [SerializeField, InlineEditor] private AnimationData animationData;
     [SerializeField] private Animator animator;
     
-    private BaseState currentState;
+    private string _currentState => _stateMachine != null ? _stateMachine.State.ToString() : "Player's Current State";
+    
+    public PlayerControls PlayerControls { get; private set; }
 
     private StateMachine _stateMachine;
-    
-    private IdleState _idleState;
-    private RunState _runState;
-    private AttackState _attackState;
-    
+
     private void Start()
     {
-        _idleState = new(animationData.GetClipByState(AnimationState.Idle));
-        _runState = new(animationData.GetClipByState(AnimationState.Run));
-        _attackState = new(animationData.GetClipByState(AnimationState.Attack));
-
-        _stateMachine = new StateMachine(this);
+        PlayerControls = new();
+        PlayerControls.Enable();
         
-        currentState = _idleState;
-    }
-
-    public void PlayStateAnimation(AnimationClip stateClip)
-    {
-        animator.Play(stateClip.name);
+        _stateMachine = new StateMachine(this, animationData);
     }
     
+    private void Update()
+    {
+        _stateMachine.State.Tick();
+    }
+
+    private void FixedUpdate()
+    {
+        _stateMachine.State.FixedTick();
+    }
+    
+    public void PlayStateAnimation(string animationHash)
+    {
+        animator.Play(animationHash);
+    }
+    
+#if UNITY_EDITOR    
+    void OnDrawGizmos() 
+    {
+        Helper.DrawString(_currentState, new Vector3(transform.position.x +.02f, transform.position.y + 1.18f, transform.position.z), Color.black);
+        Helper.DrawString(_currentState, new Vector3(transform.position.x, transform.position.y + 1.2f, transform.position.z), Color.red);
+    }
+
+#endif
 }

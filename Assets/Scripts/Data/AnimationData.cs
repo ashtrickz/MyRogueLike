@@ -7,9 +7,11 @@ namespace Data
     [CreateAssetMenu(menuName = "Data/AnimationData")]
     public class AnimationData : SerializedScriptableObject
     {
-        public Dictionary<AnimationState, AnimationClip> StateClips = new();
+        public Dictionary<AnimationState, string> StateClips = new();
 
-        public AnimationClip GetClipByState(AnimationState state)
+        public float MoveSpeed = 5f;
+        
+        public string GetAnimationHashByState(AnimationState state)
         {
             return !StateClips.ContainsKey(state) ? null : StateClips[state];
         }

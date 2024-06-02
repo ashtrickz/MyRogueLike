@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AttackState : BaseState
 {
-    public AttackState(AnimationClip clip) : base(clip)
+    public AttackState(StateMachine stateMachine, PlayerBehaviour player, string animationHash) : base(stateMachine, player, animationHash)
     {
     }
 

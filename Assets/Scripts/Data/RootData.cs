@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using DungeonGeneration;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using Input = UnityEngine.Windows.Input;
 
 [CreateAssetMenu(menuName = "Data/RootData")]
 public class RootData : SerializedScriptableObject
@@ -37,6 +39,8 @@ public class RootData : SerializedScriptableObject
 
     #endregion
 
+    public InputActionAsset PlayerControls;
+    
     public PropBehaviour PropPrefab;
     public List<PropData> PropsList = new();
 

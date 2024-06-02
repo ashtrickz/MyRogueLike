@@ -15,9 +15,7 @@ MonoBehaviour:
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
-    ReferencedUnityObjects:
-    - {fileID: 7400000, guid: 6e19b78dbe747b4429d0e76fef244916, type: 2}
-    - {fileID: 7400000, guid: ce7eee297a1296744bdefd39f8ac3a06, type: 2}
+    ReferencedUnityObjects: []
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -26,8 +24,7 @@ MonoBehaviour:
     - Name: StateClips
       Entry: 7
       Data: 0|System.Collections.Generic.Dictionary`2[[Data.AnimationData+AnimationState,
-        Assembly-CSharp],[UnityEngine.AnimationClip, UnityEngine.AnimationModule]],
-        mscorlib
+        Assembly-CSharp],[System.String, mscorlib]], mscorlib
     - Name: comparer
       Entry: 7
       Data: 1|System.Collections.Generic.EnumEqualityComparer`1[[Data.AnimationData+AnimationState,
@@ -51,8 +48,8 @@ MonoBehaviour:
       Entry: 3
       Data: 0
     - Name: $v
-      Entry: 10
-      Data: 0
+      Entry: 1
+      Data: PlayerIdle_Right
     - Name: 
       Entry: 8
       Data: 
@@ -63,8 +60,8 @@ MonoBehaviour:
       Entry: 3
       Data: 1
     - Name: $v
-      Entry: 10
-      Data: 1
+      Entry: 1
+      Data: PlayerRun_Right
     - Name: 
       Entry: 8
       Data: 
@@ -74,3 +71,4 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+  MoveSpeed: 1

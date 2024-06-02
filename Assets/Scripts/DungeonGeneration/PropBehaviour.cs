@@ -39,7 +39,7 @@ namespace DungeonGeneration
             
             data.propSprite = propSprite.sprite;
             data.shadowSprite = shadowSprite.sprite;
-            data.durability = propData.durability;
+            data.durability = durability;
         }
 
         public PropData GetData() => propData;

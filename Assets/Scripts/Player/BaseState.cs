@@ -4,23 +4,37 @@ using UnityEngine;
 
 public class BaseState
 {
+    public StateMachine StateMachine { get; private set; }
 
-    public AnimationClip StateClip { get; private set; }
+    public PlayerBehaviour Player;
+    public string AnimationHash { get; private set; }
 
-    public BaseState(AnimationClip clip)
+    public BaseState(StateMachine stateMachine, PlayerBehaviour player, string animationHash)
     {
-        StateClip = clip;
+        StateMachine = stateMachine;
+        Player = player;
+        AnimationHash = animationHash;
     }
-    
+
     public bool IsComplete { get; protected set; }
 
     private float startTime;
     private float time => Time.time - startTime;
 
-    public AnimationClip Clip { get; protected set; }
-    
-    public virtual void Enter() {}
-    public virtual void Tick() {}
-    public virtual void FixedTick() {}
-    public virtual void Exit() {}
+    public virtual void Enter()
+    {
+        Player.PlayStateAnimation(AnimationHash);
+    }
+
+    public virtual void Tick()
+    {
+    }
+
+    public virtual void FixedTick()
+    {
+    }
+
+    public virtual void Exit()
+    {
+    }
 }

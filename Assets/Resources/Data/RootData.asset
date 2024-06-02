@@ -21,6 +21,8 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
+  PlayerControls: {fileID: -944628639613478452, guid: ae802c99bbeb82b4bb3c9adcb68a9e96,
+    type: 3}
   PropPrefab: {fileID: 7530552477896662738, guid: 5aaf45065fe8f4b48b699ca04f8db01d,
     type: 3}
   PropsList:
