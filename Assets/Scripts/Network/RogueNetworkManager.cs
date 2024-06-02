@@ -11,7 +11,7 @@ public class RogueNetworkManager : NetworkManager
     public override void OnStartServer()
     {
         base.OnStartServer();
-        Generator.GenerateDungeon();
+
     }
 
     public override void OnClientConnect()
