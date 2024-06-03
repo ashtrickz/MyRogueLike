@@ -34,7 +34,11 @@ public class RunState : BaseState
 
     private void MovePlayer()
     {
-        Player.transform.position += (Vector3)(_playerMoveDirection * StateMachine.AnimationData.MoveSpeed);
+        Vector3 moveInput = _playerMoveDirection * StateMachine.AnimationData.MoveSpeed;
+        Player.transform.position += _playerMoveDirection.x != 0 && _playerMoveDirection.y != 0 
+            ? moveInput * Player.AnimationData.DiagonalMovementMultiplier
+            : moveInput;
+       
         var prevScale = Player.transform.localScale;
         if ((_playerMoveDirection.normalized.x < 0 && Player.transform.localScale.x > 0) || (_playerMoveDirection.normalized.x > 0 && Player.transform.localScale.x < 0)) 
             Player.transform.localScale = new Vector3(-prevScale.x, prevScale.y, prevScale.z);

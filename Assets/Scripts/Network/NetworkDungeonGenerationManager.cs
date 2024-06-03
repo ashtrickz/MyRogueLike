@@ -6,7 +6,7 @@ using Mirror;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class NetworkDungeonGenerator : NetworkBehaviour
+public class NetworkDungeonGenerationManager : NetworkBehaviour
 {
     public DungeonGenerator Generator;
     

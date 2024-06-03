@@ -19,7 +19,12 @@ public class IdleState : BaseState
     {
         base.Tick();
         
-        if (Player.PlayerControls.Player.Move.IsPressed()) StateMachine.Switch(StateMachine.RunState);;
+        if (Player.PlayerControls.Player.Move.IsPressed()) StateMachine.Switch(StateMachine.RunState);
+        
+        if (Player.PlayerControls.Player.MainAttack.IsPressed() 
+            || Player.PlayerControls.Player.SecondaryAttack.IsPressed()
+            || Player.PlayerControls.Player.MagicAttack.IsPressed())
+            StateMachine.Switch(StateMachine.AttackState);
     }
 
 

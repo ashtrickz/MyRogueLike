@@ -10,6 +10,7 @@ namespace Data
         public Dictionary<AnimationState, string> StateClips = new();
 
         public float MoveSpeed = 5f;
+        public float DiagonalMovementMultiplier = .75f;
         
         public string GetAnimationHashByState(AnimationState state)
         {

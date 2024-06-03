@@ -1,13 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using Mirror;
 using UnityEngine;
 
 public class RogueNetworkManager : NetworkManager
 {
     [Space] public DungeonGenerator Generator;
-
+    public CinemachineVirtualCamera Camera;
     public override void OnStartServer()
     {
         base.OnStartServer();
@@ -17,6 +18,6 @@ public class RogueNetworkManager : NetworkManager
     public override void OnClientConnect()
     {
         base.OnClientConnect();
-        
+
     }
 }

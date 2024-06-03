@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using Data;
 using Helpers;
 using Mirror;
@@ -15,17 +16,31 @@ public class PlayerBehaviour : NetworkBehaviour
 {
     [SerializeField, InlineEditor] private AnimationData animationData;
     [SerializeField] private Animator animator;
+
+    [Space, SerializeField] private Transform mainWeaponContainer;
+    [SerializeField] private Transform secondaryWeaponContainer;
+    [SerializeField] private Transform magicWeaponContainer;
     
     private string _currentState => _stateMachine != null ? _stateMachine.State.ToString() : "Player's Current State";
+
+    public AnimationData AnimationData => animationData;
     
     public PlayerControls PlayerControls { get; private set; }
 
     private StateMachine _stateMachine;
 
+    [SerializeField] private WeaponBase currentWeapon;
+    
+    public WeaponBase CurrentWeapon => currentWeapon;
+
+
     private void Start()
     {
         if (!isLocalPlayer) return;
-        
+
+        var camera = FindObjectOfType<CinemachineVirtualCamera>(); //TODO get camera from some kind of singleton or else
+        camera.Follow = transform;
+
         PlayerControls = new();
         PlayerControls.Enable();
         

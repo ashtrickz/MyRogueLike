@@ -22,7 +22,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
     [Title("References", titleAlignment: TitleAlignments.Centered), InlineEditor, SerializeField]
     private LevelTilingPreset tilingPreset;
 
-    [SerializeField] private NetworkDungeonGenerator dungeonGeneratorClientRpc;
+    [SerializeField] private NetworkDungeonGenerationManager dungeonGenerationManagerClientRpc;
 
     [HorizontalGroup("Tilemaps", .5f), LabelWidth(80), SerializeField]
     private Tilemap floorTilemap, wallTilemap;
@@ -89,7 +89,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
         GenerateRooms();
         ConnectAndPaintRooms();
 
-        dungeonGeneratorClientRpc.GenerateDungeonClientRpc(CurrentSeed);
+        dungeonGenerationManagerClientRpc.GenerateDungeonClientRpc(CurrentSeed);
     }
 
     private void GenerateRooms()
