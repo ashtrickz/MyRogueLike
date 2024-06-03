@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using DungeonGeneration;
+using Mirror;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor.Drawers;
 using Sirenix.Utilities;
@@ -21,7 +22,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
     [Title("References", titleAlignment: TitleAlignments.Centered), InlineEditor, SerializeField]
     private LevelTilingPreset tilingPreset;
 
-    [SerializeField] private NetworkTilemapPainter tilemapPainter;
+    [SerializeField] private NetworkDungeonGenerator dungeonGeneratorClientRpc;
 
     [HorizontalGroup("Tilemaps", .5f), LabelWidth(80), SerializeField]
     private Tilemap floorTilemap, wallTilemap;
@@ -31,6 +32,9 @@ public class DungeonGenerator : SerializedMonoBehaviour
     [Title("Generation Data", titleAlignment: TitleAlignments.Centered), InlineEditor, SerializeField]
     private DungeonGenerationData generationData;
 
+    [SerializeField] public string GameSeed = "Default";
+    [SerializeField] public int CurrentSeed = 0;
+    
     [MinMaxSlider(2, 10), LabelWidth(120f), SerializeField, SuffixLabel("$_roomsCountString")]
     private Vector2Int roomCount = new(5, 7);
 
@@ -62,15 +66,30 @@ public class DungeonGenerator : SerializedMonoBehaviour
     
     private int _roomCount = 0;
 
+    public void GenerateDungeon(int seed)
+    {
+        CurrentSeed = seed;
+        
+        Random.InitState(CurrentSeed);
+        
+        ClearDungeon();
+
+        GenerateRooms();
+        ConnectAndPaintRooms();
+    }
+
     [Button, HorizontalGroup("Generate Dungeon", PaddingLeft = 15f)]
     public void GenerateDungeon()
     {
+        CurrentSeed = GameSeed.GetHashCode();
+        Random.InitState(CurrentSeed);
+        
         ClearDungeon();
 
         GenerateRooms();
         ConnectAndPaintRooms();
 
-        tilemapPainter.SetDungeonData(generationData, floorTilemap, wallTilemap);
+        dungeonGeneratorClientRpc.GenerateDungeonClientRpc(CurrentSeed);
     }
 
     private void GenerateRooms()
@@ -230,7 +249,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
         return walls;
     }
-
+    
     private void ConnectAndPaintRooms()
     {
         foreach (var roomData in generationData.RoomsDictionary)
@@ -472,11 +491,17 @@ public class DungeonGenerator : SerializedMonoBehaviour
         generationData.AddRoomData(roomId, floor, walls, doorwayPoints, takenDirection, rangeX, rangeY,
             propsDictionary);
 
-    private void PaintTiles(IEnumerable<Vector2Int> floorPositions, Tilemap tilemap, TileBase tile) 
-        => tilemapPainter.PaintTiles(floorPositions, tilemap, tile);
+    public void PaintTiles(IEnumerable<Vector2Int> floorPositions, Tilemap tilemap, TileBase tile)
+    {
+        foreach (var position in floorPositions)
+            PaintSingleTile(tilemap, tile, position);
+    }
 
-    private void PaintSingleTile(Tilemap tilemap, TileBase tile, Vector2Int position) 
-        => tilemapPainter.PaintSingleTile(tilemap, tile, position);
+    public void PaintSingleTile(Tilemap tilemap, TileBase tile, Vector2Int position)
+    {
+        var tilePosition = tilemap.WorldToCell((Vector3Int) position);
+        tilemap.SetTile(tilePosition, tile);
+    }
 
     [Button, HorizontalGroup("Generate Dungeon", PaddingLeft = 15, MarginRight = 0.05f)]
     private void ClearDungeon()
