@@ -1,25 +1,28 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Data;
 using Mirror;
+using StateMachine.Player;
+using StateMachine.States;
 using UnityEngine;
 
-public abstract class StateMachineCore : NetworkBehaviour
+namespace StateMachine
 {
-    [NonSerialized] public PlayerBehaviour Player;
-    [Header("Core Data"), SerializeField] public Animator Animator;
-    [SerializeField] public AnimationData AnimationData;
-
-    public StateMachine StateMachine;
-    public BaseState CurrentState => StateMachine?.CurrentState;
-
-    public void SetupInstances(BaseState[] statesList)
+    public abstract class StateMachineCore : NetworkBehaviour
     {
-        StateMachine = new StateMachine();
+        [NonSerialized] public PlayerBehaviour Player;
+        [Header("Core Data"), SerializeField] public Animator Animator;
+        [SerializeField] public AnimationData AnimationData;
 
-        foreach (var state in statesList)
-            state.SetCore(this);
+        public StateMachine StateMachine;
+        public BaseState CurrentState => StateMachine?.CurrentState;
+
+        public void SetupInstances(BaseState[] statesList)
+        {
+            StateMachine = new StateMachine();
+
+            foreach (var state in statesList)
+                state.SetCore(this);
+        }
+
     }
-
 }

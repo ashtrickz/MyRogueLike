@@ -1,100 +1,105 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Cinemachine;
-using Data;
 using Helpers;
 using Mirror;
-using Sirenix.OdinInspector;
-using Sirenix.Reflection.Editor;
-using UnityEditor;
+using StateMachine.States;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
-using Random = UnityEngine.Random;
-using AnimationState = Data.AnimationData.AnimationState;
 
-public class PlayerBehaviour : StateMachineCore
+namespace StateMachine.Player
 {
-    [Space, Header("Required States")]
-    public IdleState IdleState;
-    public RunState RunState;
-    public AttackState AttackState;
-    
-    public PlayerControls PlayerControls { get; private set; }
-
-    private void Start()
+    public class PlayerBehaviour : StateMachineCore
     {
-        if (!isLocalPlayer) return;
+        [Space, Header("Required States")]
+        public IdleState IdleState;
+        public RunState RunState;
+        public AttackState AttackState;
+        public HitState HitState;
 
-        Player = this;
-        
-        var camera = FindObjectOfType<CinemachineVirtualCamera>(); //TODO get camera from some kind of singleton or else
-        camera.Follow = transform;
+        public Action OnPlayerHit;
 
-        PlayerControls = new();
-        PlayerControls.Enable();
+        public PlayerControls PlayerControls { get; private set; }
 
-        SetupInstances(new []{(BaseState)IdleState, RunState, AttackState});
-        StateMachine.SwitchState(IdleState);
-    }
-
-    [ClientCallback]
-    private void Update()
-    {
-        if (!isLocalPlayer) return;
-
-        CheckAttack();
-        
-        if (CurrentState.IsComplete)
+        private void Start()
         {
+            if (!isLocalPlayer) return;
+
+            Player = this;
+        
+            var camera = FindObjectOfType<CinemachineVirtualCamera>(); //TODO get camera from some kind of singleton or else
+            camera.Follow = transform;
+
+            PlayerControls = new();
+            PlayerControls.Enable();
+
+            OnPlayerHit += OnPlayerHitCallback;
+            
+            SetupInstances(new []{(BaseState)IdleState, RunState, AttackState, HitState});
             StateMachine.SwitchState(IdleState);
         }
+
+        [ClientCallback]
+        private void Update()
+        {
+            if (!isLocalPlayer) return;
+
+            CheckAttack();
         
-        CurrentState.TickBranch();
-    }
-
-    private void CheckAttack()
-    {
-        if (!AttackPressed) return;
-        StateMachine.SwitchState(AttackState);
-        CurrentState.Machine.SwitchState(IdleState);
-    }
-
-    [ClientCallback]
-    private void FixedUpdate()
-    {
-        if (!isLocalPlayer) return;
-
-        CurrentState.FixedTickBranch();
+            if (CurrentState.IsComplete)
+            {
+                StateMachine.SwitchState(IdleState);
+            }
         
-        if (MovePressed && CurrentState.IsComplete) StateMachine.SwitchState(RunState);
-    }
+            CurrentState.TickBranch();
+        }
 
-    [ClientCallback]
-    public void PlayStateAnimation(string animationHash) => Animator.Play(animationHash);
-    public bool MovePressed => PlayerControls.Player.Move.IsPressed();
-    
-    public bool AttackPressed => PlayerControls.Player.MainAttack.IsPressed()
-                                    || PlayerControls.Player.SecondaryAttack.IsPressed()
-                                    || PlayerControls.Player.MagicAttack.IsPressed();
+        [ClientCallback]
+        private void FixedUpdate()
+        {
+            if (!isLocalPlayer) return;
+
+            CurrentState.FixedTickBranch();
+        
+            if (MovePressed && CurrentState.IsComplete) StateMachine.SwitchState(RunState);
+        }
+
+        [ClientCallback]
+        public void PlayStateAnimation(string animationHash) => Animator.Play(animationHash);
+
+        private void CheckAttack()
+        {
+            if (!AttackPressed) return;
+            StateMachine.SwitchState(AttackState);
+            CurrentState.Machine.SwitchState(IdleState);
+        }
+
+        public void OnPlayerHitCallback()
+        {
+            StateMachine.SwitchState(HitState);
+        }
+
+        public bool MovePressed => PlayerControls.Player.Move.IsPressed();
+
+        public bool AttackPressed => PlayerControls.Player.MainAttack.IsPressed()
+                                     || PlayerControls.Player.SecondaryAttack.IsPressed()
+                                     || PlayerControls.Player.MagicAttack.IsPressed();
 
 
-    void OnDrawGizmos()
-    {
+        void OnDrawGizmos()
+        {
 #if UNITY_EDITOR
-        if (!Application.isPlaying || StateMachine == null) return;
-        List<BaseState> states = StateMachine.GetActiveStateBranch();
+            if (!Application.isPlaying || StateMachine == null) return;
+            List<BaseState> states = StateMachine.GetActiveStateBranch();
         
-        if (states == null || states.Count == 0) return;
+            if (states == null || states.Count == 0) return;
         
-        Helper.DrawString("Active States: " + string.Join(" > ", states).Replace("StateBehaviours", "").Replace("(", "").Replace(")", "").Replace("State", ""),
-            new Vector3(transform.position.x + .02f, transform.position.y + 1.18f, transform.position.z), Color.black);
-        Helper.DrawString("Active States: " + string.Join(" > ", states).Replace("StateBehaviours", "").Replace("(", "").Replace(")", "").Replace("State", ""),
-            new Vector3(transform.position.x, transform.position.y + 1.2f, transform.position.z), Color.red);
+            Helper.DrawString("Active States: " + string.Join(" > ", states).Replace("Player_", ""),
+                new Vector3(transform.position.x + .02f, transform.position.y + 1.18f, transform.position.z), Color.black);
+            Helper.DrawString("Active States: " + string.Join(" > ", states).Replace("Player_", ""),
+                new Vector3(transform.position.x, transform.position.y + 1.2f, transform.position.z), Color.red);
 #endif
+        }
+
+
     }
-
-
 }

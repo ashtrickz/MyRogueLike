@@ -1,36 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using StateMachine.States;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Data/States/AttackState")]
-public class AttackState : BaseState
+[CreateAssetMenu(menuName = "Data/States/HitState")]
+public class HitState : BaseState
 {
-
-    // private WeaponBase Weapon => Player.CurrentWeapon;
+    private Animator Animator => Core.Animator;
     
     public override void Enter()
     {
         base.Enter();
-
-        Machine.SwitchState(Core.Player.IdleState);
-        
     }
 
     public override void Tick()
     {
         base.Tick();
-
     }
-
+    
     public override void FixedTick()
     {
         base.FixedTick();
 
-        if (Core.Player.MovePressed) Machine.SwitchState(Core.Player.RunState);
-        
-        if (ElapsedTime > 1f)
+        if (Animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !Animator.IsInTransition(0))
             IsComplete = true;
-
     }
 
     public override void Exit()

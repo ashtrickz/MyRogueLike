@@ -3,33 +3,37 @@ using System.Collections;
 using System.Collections.Generic;
 using Data;
 using Mirror.Examples.CCU;
+using StateMachine.States;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using AnimationState = Data.AnimationData.AnimationState;
 using Random = UnityEngine.Random;
 
-public class StateMachine
+namespace StateMachine
 {
-    public BaseState CurrentState { get; protected set; }
-    
-    public void SwitchState(BaseState state, bool forceReset = false)
+    public class StateMachine
     {
-        if (CurrentState == state && !forceReset) return;
+        public BaseState CurrentState { get; protected set; }
 
-        CurrentState?.Exit();
-        CurrentState = state;
-        CurrentState.Initialise(this);
-        CurrentState.Enter();
-    }
+        public void SwitchState(BaseState state, bool forceReset = false)
+        {
+            if (CurrentState == state && !forceReset) return;
 
-    public List<BaseState> GetActiveStateBranch(List<BaseState> list = null)
-    {
-        list ??= new();
-    
-        if (CurrentState == null) return list;
-    
-        list.Add(CurrentState);
-        return CurrentState.Machine?.GetActiveStateBranch(list);
+            CurrentState?.Exit();
+            CurrentState = state;
+            CurrentState.Initialise(this);
+            CurrentState.Enter();
+        }
+
+        public List<BaseState> GetActiveStateBranch(List<BaseState> list = null)
+        {
+            list ??= new();
+
+            if (CurrentState == null) return list;
+
+            list.Add(CurrentState);
+            return CurrentState.Machine?.GetActiveStateBranch(list);
+        }
     }
 }

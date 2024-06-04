@@ -442,14 +442,18 @@ MonoBehaviour:
     - Name: StateMachine
       Entry: 6
       Data: 
+    - Name: OnPlayerHit
+      Entry: 6
+      Data: 
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  AnimationData: {fileID: 11400000, guid: 47998f5daa666054680bf9d928d427e0, type: 2}
   Animator: {fileID: 1945079468473430557}
+  AnimationData: {fileID: 11400000, guid: 47998f5daa666054680bf9d928d427e0, type: 2}
   IdleState: {fileID: 11400000, guid: e0885f37359aa404fb1439593be7c1bb, type: 2}
   RunState: {fileID: 11400000, guid: 9b109727470666d4b9b77692256bcb14, type: 2}
   AttackState: {fileID: 11400000, guid: c27d0f9ff823e3947a8ddaa5f337343b, type: 2}
+  HitState: {fileID: 11400000, guid: a2f95321bbf69b54abb4ef766e565668, type: 2}
 --- !u!95 &1945079468473430557
 Animator:
   serializedVersion: 5

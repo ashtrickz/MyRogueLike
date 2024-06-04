@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92d935af56c349d4bbf48a4e4fb35d94, type: 3}
-  m_Name: Player_RunState
+  m_Script: {fileID: 11500000, guid: e436e29d835fa3d4ca116065a476abfd, type: 3}
+  m_Name: Player_HitState
   m_EditorClassIdentifier: 
-  AnimationName: Run
+  AnimationName: Hit
