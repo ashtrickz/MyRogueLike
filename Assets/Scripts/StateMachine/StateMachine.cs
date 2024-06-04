@@ -25,10 +25,7 @@ public class StateMachine
 
     public List<BaseState> GetActiveStateBranch(List<BaseState> list = null)
     {
-        if (list == null)
-        {
-            list = new();
-        }
+        list ??= new();
     
         if (CurrentState == null) return list;
     

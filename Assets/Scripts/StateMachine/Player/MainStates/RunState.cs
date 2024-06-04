@@ -4,6 +4,7 @@ using Data;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
+[CreateAssetMenu(menuName = "Data/States/RunState")]
 public class RunState : BaseState
 {
     private Vector2 _playerMoveDirection;

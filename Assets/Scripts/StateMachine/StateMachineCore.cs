@@ -8,17 +8,16 @@ using UnityEngine;
 public abstract class StateMachineCore : NetworkBehaviour
 {
     [NonSerialized] public PlayerBehaviour Player;
+    [Header("Core Data"), SerializeField] public Animator Animator;
     [SerializeField] public AnimationData AnimationData;
-    [SerializeField] public Animator Animator;
 
     public StateMachine StateMachine;
     public BaseState CurrentState => StateMachine?.CurrentState;
 
-    public void SetupInstances()
+    public void SetupInstances(BaseState[] statesList)
     {
         StateMachine = new StateMachine();
-        
-        BaseState[] statesList = GetComponentsInChildren<BaseState>();
+
         foreach (var state in statesList)
             state.SetCore(this);
     }

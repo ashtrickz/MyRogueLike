@@ -8,7 +8,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 
-public abstract class BaseState : MonoBehaviour
+public abstract class BaseState : ScriptableObject
 {
     public string AnimationName;
     

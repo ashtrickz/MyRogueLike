@@ -11,11 +11,13 @@ using Sirenix.Reflection.Editor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 using AnimationState = Data.AnimationData.AnimationState;
 
 public class PlayerBehaviour : StateMachineCore
 {
+    [Space, Header("Required States")]
     public IdleState IdleState;
     public RunState RunState;
     public AttackState AttackState;
@@ -34,7 +36,7 @@ public class PlayerBehaviour : StateMachineCore
         PlayerControls = new();
         PlayerControls.Enable();
 
-        SetupInstances();
+        SetupInstances(new []{(BaseState)IdleState, RunState, AttackState});
         StateMachine.SwitchState(IdleState);
     }
 
@@ -87,9 +89,9 @@ public class PlayerBehaviour : StateMachineCore
         
         if (states == null || states.Count == 0) return;
         
-        Helper.DrawString("Active States: " + string.Join(" > ", states),
+        Helper.DrawString("Active States: " + string.Join(" > ", states).Replace("StateBehaviours", "").Replace("(", "").Replace(")", "").Replace("State", ""),
             new Vector3(transform.position.x + .02f, transform.position.y + 1.18f, transform.position.z), Color.black);
-        Helper.DrawString("Active States: " + string.Join(" > ", states),
+        Helper.DrawString("Active States: " + string.Join(" > ", states).Replace("StateBehaviours", "").Replace("(", "").Replace(")", "").Replace("State", ""),
             new Vector3(transform.position.x, transform.position.y + 1.2f, transform.position.z), Color.red);
 #endif
     }

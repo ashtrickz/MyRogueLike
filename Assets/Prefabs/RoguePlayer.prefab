@@ -93,9 +93,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1532275040634798259}
-  - component: {fileID: 7253573269738990229}
-  - component: {fileID: 2856558658912398632}
-  - component: {fileID: 1943874136077196786}
   m_Layer: 0
   m_Name: StateBehaviours
   m_TagString: Untagged
@@ -118,45 +115,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5400537780728237049}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7253573269738990229
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2085728372138350048}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2227a7d982fd2774e89dded3132b216a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  AnimationName: Idle
---- !u!114 &2856558658912398632
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2085728372138350048}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92d935af56c349d4bbf48a4e4fb35d94, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  AnimationName: Run
---- !u!114 &1943874136077196786
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2085728372138350048}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b86a23ba4c3f9534783a1172ea5f0b7c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  AnimationName: 
 --- !u!1 &2998588986268610749
 GameObject:
   m_ObjectHideFlags: 0
@@ -489,9 +447,9 @@ MonoBehaviour:
   syncInterval: 0
   AnimationData: {fileID: 11400000, guid: 47998f5daa666054680bf9d928d427e0, type: 2}
   Animator: {fileID: 1945079468473430557}
-  IdleState: {fileID: 7253573269738990229}
-  RunState: {fileID: 2856558658912398632}
-  AttackState: {fileID: 1943874136077196786}
+  IdleState: {fileID: 11400000, guid: e0885f37359aa404fb1439593be7c1bb, type: 2}
+  RunState: {fileID: 11400000, guid: 9b109727470666d4b9b77692256bcb14, type: 2}
+  AttackState: {fileID: 11400000, guid: c27d0f9ff823e3947a8ddaa5f337343b, type: 2}
 --- !u!95 &1945079468473430557
 Animator:
   serializedVersion: 5

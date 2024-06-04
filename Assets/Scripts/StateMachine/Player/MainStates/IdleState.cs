@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+[CreateAssetMenu(menuName = "Data/States/IdleState")]
 public class IdleState : BaseState
 {
     public override void Enter()
