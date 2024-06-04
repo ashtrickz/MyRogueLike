@@ -6,14 +6,12 @@ namespace StateMachine.States
     public class AttackState : BaseState
     {
 
-        // private WeaponBase Weapon => Player.CurrentWeapon;
+        private Animator Animator => Core.Player.WeaponAnimator;
     
         public override void Enter()
         {
-            base.Enter();
-
+            Animator.Play(AnimationName); //TODO Change Animation Name on Used Weapon Animation Name
             Machine.SwitchState(Core.Player.IdleState);
-        
         }
 
         public override void Tick()

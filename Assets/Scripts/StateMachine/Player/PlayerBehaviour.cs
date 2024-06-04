@@ -16,6 +16,9 @@ namespace StateMachine.Player
         public AttackState AttackState;
         public HitState HitState;
 
+        [Space, Header("References")] 
+        public Animator WeaponAnimator;
+        
         public Action OnPlayerHit;
 
         public PlayerControls PlayerControls { get; private set; }

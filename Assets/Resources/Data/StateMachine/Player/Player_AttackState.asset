@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b86a23ba4c3f9534783a1172ea5f0b7c, type: 3}
   m_Name: Player_AttackState
   m_EditorClassIdentifier: 
-  AnimationName: 
+  AnimationName: Sword_Swing_1
