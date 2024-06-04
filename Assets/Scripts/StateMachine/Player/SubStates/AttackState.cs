@@ -6,37 +6,18 @@ public class AttackState : BaseState
 {
 
     // private WeaponBase Weapon => Player.CurrentWeapon;
-
-    private float _attackTime = 0;
     
     public override void Enter()
     {
-        // if (Player.CurrentWeapon == null) 
-        //     StateMachine.SwitchState(StateMachine.IdleState);
-        
         base.Enter();
 
-        _attackTime = 0;
+        Machine.SwitchState(Core.Player.IdleState);
+        
     }
 
     public override void Tick()
     {
         base.Tick();
-        // Weapon.WeaponTick();
-        //
-        // switch (Weapon.Type)
-        // {
-        //     case WeaponBase.WeaponType.Main:
-        //         Player.PlayerControls.Player.MainAttack.performed += attack => Weapon.Attack();
-        //         break;
-        //     case WeaponBase.WeaponType.Secondary:
-        //         Player.PlayerControls.Player.SecondaryAttack.performed += attack => Weapon.Attack();
-        //         break;
-        //     case WeaponBase.WeaponType.Magic:
-        //         Player.PlayerControls.Player.MagicAttack.performed += attack => Weapon.Attack();
-        //         break;
-        //     
-        // }
 
     }
 
@@ -44,11 +25,10 @@ public class AttackState : BaseState
     {
         base.FixedTick();
 
-
-        // if (_attackTime < Weapon.AttackSpeed)
-        //     _attackTime += Time.deltaTime;
-        // else
-        //     IsComplete = true;
+        if (Core.Player.MovePressed) Machine.SwitchState(Core.Player.RunState);
+        
+        if (ElapsedTime > 1f)
+            IsComplete = true;
 
     }
 

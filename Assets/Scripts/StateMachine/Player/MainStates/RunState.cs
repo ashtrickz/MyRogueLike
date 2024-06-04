@@ -18,8 +18,6 @@ public class RunState : BaseState
     public override void Tick()
     {
         base.Tick();
-        
-        //if (Player.AttackPressed) SwitchSubState(StateMachine.AttackSubState);
     }
 
     public override void FixedTick()

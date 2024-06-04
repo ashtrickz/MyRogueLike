@@ -43,12 +43,21 @@ public class PlayerBehaviour : StateMachineCore
     {
         if (!isLocalPlayer) return;
 
-        if (StateMachine.CurrentState.IsComplete)
+        CheckAttack();
+        
+        if (CurrentState.IsComplete)
         {
-            if (StateMachine.CurrentState == RunState) StateMachine.SwitchState(IdleState);
+            StateMachine.SwitchState(IdleState);
         }
         
-        StateMachine.CurrentState.Tick();
+        CurrentState.TickBranch();
+    }
+
+    private void CheckAttack()
+    {
+        if (!AttackPressed) return;
+        StateMachine.SwitchState(AttackState);
+        CurrentState.Machine.SwitchState(IdleState);
     }
 
     [ClientCallback]
@@ -56,18 +65,13 @@ public class PlayerBehaviour : StateMachineCore
     {
         if (!isLocalPlayer) return;
 
-        StateMachine.CurrentState.FixedTick();
+        CurrentState.FixedTickBranch();
         
-        if (MovePressed) StateMachine.SwitchState(RunState);
-        if (AttackPressed) StateMachine.SwitchState(AttackState);
+        if (MovePressed && CurrentState.IsComplete) StateMachine.SwitchState(RunState);
     }
 
     [ClientCallback]
-    public void PlayStateAnimation(string animationHash)
-    {
-        Animator.Play(animationHash);
-    }
-
+    public void PlayStateAnimation(string animationHash) => Animator.Play(animationHash);
     public bool MovePressed => PlayerControls.Player.Move.IsPressed();
     
     public bool AttackPressed => PlayerControls.Player.MainAttack.IsPressed()
@@ -75,18 +79,20 @@ public class PlayerBehaviour : StateMachineCore
                                     || PlayerControls.Player.MagicAttack.IsPressed();
 
 
-//     void OnDrawGizmos()
-//     {
-// #if UNITY_EDITOR
-//         if (!Application.isPlaying) return;
-//         List<BaseState> states = StateMachine.GetActiveStateBranch(); 
-//         
-//         Helper.DrawString("Active States: " + string.Join(" > ", states),
-//             new Vector3(transform.position.x + .02f, transform.position.y + 1.18f, transform.position.z), Color.black);
-//         Helper.DrawString("Active States: " + string.Join(" > ", states),
-//             new Vector3(transform.position.x, transform.position.y + 1.2f, transform.position.z), Color.red);
-// #endif
-//     }
+    void OnDrawGizmos()
+    {
+#if UNITY_EDITOR
+        if (!Application.isPlaying || StateMachine == null) return;
+        List<BaseState> states = StateMachine.GetActiveStateBranch();
+        
+        if (states == null || states.Count == 0) return;
+        
+        Helper.DrawString("Active States: " + string.Join(" > ", states),
+            new Vector3(transform.position.x + .02f, transform.position.y + 1.18f, transform.position.z), Color.black);
+        Helper.DrawString("Active States: " + string.Join(" > ", states),
+            new Vector3(transform.position.x, transform.position.y + 1.2f, transform.position.z), Color.red);
+#endif
+    }
 
 
 }

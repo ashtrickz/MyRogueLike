@@ -12,6 +12,7 @@ public abstract class StateMachineCore : NetworkBehaviour
     [SerializeField] public Animator Animator;
 
     public StateMachine StateMachine;
+    public BaseState CurrentState => StateMachine?.CurrentState;
 
     public void SetupInstances()
     {

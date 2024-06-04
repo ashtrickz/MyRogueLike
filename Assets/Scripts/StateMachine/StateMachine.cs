@@ -19,17 +19,20 @@ public class StateMachine
 
         CurrentState?.Exit();
         CurrentState = state;
-        CurrentState.Initialise();
+        CurrentState.Initialise(this);
         CurrentState.Enter();
     }
 
-    // public List<BaseState> GetActiveStateBranch(List<BaseState> list = null)
-    // {
-    //     list ??= new();
-    //
-    //     if (CurrentState == null) return list;
-    //
-    //     list.Add(CurrentState);
-    //     return CurrentState.SubStateMachine.GetActiveStateBranch(list);
-    // }
+    public List<BaseState> GetActiveStateBranch(List<BaseState> list = null)
+    {
+        if (list == null)
+        {
+            list = new();
+        }
+    
+        if (CurrentState == null) return list;
+    
+        list.Add(CurrentState);
+        return CurrentState.Machine?.GetActiveStateBranch(list);
+    }
 }

@@ -9,12 +9,13 @@ public class IdleState : BaseState
     public override void Enter()
     {
         base.Enter();
+        IsComplete = true;
     }
 
     public override void Tick()
     {
         base.Tick();
-        
+
     }
     
     public override void FixedTick()
