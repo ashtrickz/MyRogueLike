@@ -27,7 +27,7 @@ namespace StateMachine.States
             if (Player != null)
             {
                 _playerMoveDirection = Player.PlayerControls.Player.Move.ReadValue<Vector2>();
-                if (_playerMoveDirection == Vector2.zero) IsComplete = true;
+                if (!Player.MovePressed) IsComplete = true;
                 else MovePlayer();
             }
         }

@@ -1,3 +1,4 @@
+using StateMachine.Player;
 using UnityEngine;
 
 namespace StateMachine.States
@@ -6,7 +7,8 @@ namespace StateMachine.States
     public class AttackState : BaseState
     {
 
-        private Animator Animator => Core.Player.WeaponAnimator;
+        private PlayerBehaviour Player => Core.Player;
+        private Animator Animator => Player.WeaponAnimator;
     
         public override void Enter()
         {
@@ -24,8 +26,12 @@ namespace StateMachine.States
         {
             base.FixedTick();
 
-            if (Core.Player.MovePressed) Machine.SwitchState(Core.Player.RunState);
-        
+            if (State.IsComplete)
+            {
+                Machine.SwitchState(Player.IdleState);
+            }
+            
+            if (Player.MovePressed) Machine.SwitchState(Player.RunState);
             if (ElapsedTime > 1f)
                 IsComplete = true;
 
