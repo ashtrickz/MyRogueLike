@@ -4,6 +4,7 @@ using UnityEngine;
 
 public abstract class WeaponBase : MonoBehaviour
 {
+
     public float Damage;
     public float AttackSpeed;
     public float CooldDown;

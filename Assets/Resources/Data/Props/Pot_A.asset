@@ -21,9 +21,11 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  stringId: 
+  stringId: Pot_A
   colliderPoints: []
   rigidbodyData: {fileID: 0}
   propSprite: {fileID: 0}
   shadowSprite: {fileID: 0}
   durability: 0
+  OnDeathActions:
+  - {fileID: 11400000, guid: eeb263c5e65927e41adbcf3297b1b196, type: 2}

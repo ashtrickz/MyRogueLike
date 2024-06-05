@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d959f75bb4583846822c5962db3ec75, type: 3}
-  m_Name: SmallCrate
+  m_Script: {fileID: 11500000, guid: a2fb186b71ff4c84bf66300b621d2cc3, type: 3}
+  m_Name: SimpleDestroyAction
   m_EditorClassIdentifier: 
   serializationData:
     SerializedFormat: 2
@@ -21,11 +21,3 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  stringId: SmallCrate
-  colliderPoints: []
-  rigidbodyData: {fileID: 0}
-  propSprite: {fileID: 0}
-  shadowSprite: {fileID: 0}
-  durability: 0
-  OnDeathActions:
-  - {fileID: 11400000, guid: eeb263c5e65927e41adbcf3297b1b196, type: 2}

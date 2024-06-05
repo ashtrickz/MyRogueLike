@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using AOT;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -14,6 +15,8 @@ public class PropData : SerializedScriptableObject
     [SerializeField] public Sprite shadowSprite;
     [SerializeField] public float durability;
 
+    [SerializeField] public List<EnvironmentAction> OnDeathActions;
+    
     private void OnValidate()
     {
         if (stringId == String.Empty) stringId = name;

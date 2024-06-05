@@ -372,7 +372,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
             }
         }
     }
-
+    
     private Dictionary<Vector2, PropData> GenerateProps(int minX, int maxX, int minY, int maxY, int propCount)
     {
         Dictionary<Vector2, PropData> propsDictionary = new();
