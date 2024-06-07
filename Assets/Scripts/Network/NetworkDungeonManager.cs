@@ -17,9 +17,14 @@ public class NetworkDungeonManager : NetworkBehaviour
 {
     public static NetworkDungeonManager Instance { get; private set; }
 
-
     private int _roomId = 0;
     private List<SessionPropData> _spawnedPropsList = new();
+
+    [SyncVar]
+    public Random.State DungeonState;
+
+    [SyncVar]
+    public int DungeonSeed;
 
     private void Awake()
     {
@@ -31,18 +36,10 @@ public class NetworkDungeonManager : NetworkBehaviour
 
     // Generation
 
-    // [Command()]
-    // public void GenerateDungeonCmd()
-    // {
-    //     GenerateDungeonClientRpc(Generator.CurrentSeed);
-    //     Debug.Log("Generate Cmd");
-    // }
-
     [ClientRpc]
     public void GenerateDungeonClientRpc()
     {
-        Generator.GenerateDungeonOnClient(Generator.CurrentSeed);
-        Debug.Log("Generate Client Rpc");
+        Generator.GenerateDungeon();
     }
 
     // Props

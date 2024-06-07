@@ -93,8 +93,10 @@ namespace StateMachine.Player
         // Dungeon Generation
         
         [Command]
-        private void GenerateDungeonCmd() => 
+        private void GenerateDungeonCmd()
+        {
             NetworkDungeonManager.Instance.GenerateDungeonClientRpc();
+        }
 
         // Authority
 

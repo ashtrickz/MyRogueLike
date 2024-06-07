@@ -66,20 +66,8 @@ public class DungeonGenerator : SerializedMonoBehaviour
     
     private int _roomCount = 0;
 
-    public void GenerateDungeonOnClient(int seed)
-    {
-        CurrentSeed = seed;
-        
-        Random.InitState(CurrentSeed);
-        
-        ClearDungeon();
-
-        GenerateRooms();
-        ConnectAndPaintRooms();
-    }
-
     [Button, HorizontalGroup("Generate Dungeon", PaddingLeft = 15f)]
-    public void GenerateDungeonOnServer()
+    public void GenerateDungeon()
     {
         CurrentSeed = GameSeed.GetHashCode();
         Random.InitState(CurrentSeed);
@@ -88,6 +76,8 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
         GenerateRooms();
         ConnectAndPaintRooms();
+
+        Debug.Log($"Dungeon generated via seed: {CurrentSeed}");
     }
 
     private void GenerateRooms()
