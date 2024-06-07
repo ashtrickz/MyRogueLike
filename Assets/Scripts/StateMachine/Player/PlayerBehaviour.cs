@@ -39,8 +39,19 @@ namespace StateMachine.Player
             
             SetupInstances(new []{(BaseState)IdleState, RunState, AttackState, HitState});
             StateMachine.SwitchState(IdleState);
+            
+            // Authority
+
+            GetDungeonGeneratorAuthorityCmd();
+
         }
 
+        [Command]
+        private void GetDungeonGeneratorAuthorityCmd()
+        {
+            NetworkDungeonManager.Instance.netIdentity.AssignClientAuthority(connectionToClient);
+        }
+        
         [ClientCallback]
         private void Update()
         {

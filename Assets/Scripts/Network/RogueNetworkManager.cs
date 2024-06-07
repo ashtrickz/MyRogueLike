@@ -47,7 +47,6 @@ public class RogueNetworkManager : NetworkManager
     public override void OnClientConnect()
     {
         base.OnClientConnect();
-    
     }
 
     public override void OnStartClient()

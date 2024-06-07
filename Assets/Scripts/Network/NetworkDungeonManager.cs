@@ -26,16 +26,16 @@ public class NetworkDungeonManager : NetworkBehaviour
 
     // Generation
 
-    [Command(requiresAuthority = false)]
+    [Command()]
     public void GenerateDungeonCmd()
     {
-      GenerateDungeonClientRpc(Generator.CurrentSeed);
-      Debug.Log("Generate Cmd");
+        GenerateDungeonClientRpc(Generator.CurrentSeed);
+        Debug.Log("Generate Cmd");
     }
 
     [ClientRpc]
     public void GenerateDungeonClientRpc(int seed)
-    {   
+    {
         Generator.GenerateDungeonOnClient(seed);
         Debug.Log("Generate Client Rpc");
     }
@@ -83,7 +83,6 @@ public class NetworkDungeonManager : NetworkBehaviour
         {
             if (prop.gameObject == null) continue;
             NetworkObjectDestroyer.Instance.DestroyObjectServerRpc(prop.gameObject);
-            
         }
     }
 }
