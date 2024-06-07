@@ -89,7 +89,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
         GenerateRooms();
         ConnectAndPaintRooms();
 
-        dungeonGenerationManagerClientRpc.GenerateDungeonClientRpc(CurrentSeed);
+        //dungeonGenerationManagerClientRpc.GenerateDungeonClientRpc(CurrentSeed);
     }
 
     private void GenerateRooms()
@@ -378,16 +378,8 @@ public class DungeonGenerator : SerializedMonoBehaviour
         Dictionary<Vector2, PropData> propsDictionary = new();
 
         List<Vector2> propsPositions = FindPropsPositions(minX, maxX, minY, maxY, propCount);
-
-        var root = RootData.RootInstance;
-
-        foreach (var position in propsPositions)
-        {
-            var prop = Instantiate(root.PropPrefab, propsParent);
-            prop.transform.position = (Vector2) position;
-            prop.Init(root.GetRandomPropData());
-            propsDictionary.Add(position, prop.GetData());
-        }
+        
+        NetworkDungeonGenerationManager.Instance.SpawnPropsServerRpc(propsParent, propsPositions);
 
         return propsDictionary;
     }
@@ -509,13 +501,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
         floorTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
 
-        while (propsParent.childCount != 0)
-        {
-            foreach (Transform child in propsParent)
-            {
-                DestroyImmediate(child.gameObject);
-            }
-        }
+        NetworkDungeonGenerationManager.Instance.DespawnPropsServerRpc();
 
         generationData = ScriptableObject.CreateInstance<DungeonGenerationData>();
     }

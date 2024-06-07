@@ -65,7 +65,8 @@ MonoBehaviour:
     type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 0
-  spawnPrefabs: []
+  spawnPrefabs:
+  - {fileID: 3424187846848947778, guid: 5aaf45065fe8f4b48b699ca04f8db01d, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
@@ -81,6 +82,9 @@ MonoBehaviour:
   evaluationMethod: 0
   evaluationInterval: 3
   timeInterpolationGui: 0
+  Generator: {fileID: 0}
+  Camera: {fileID: 0}
+  NetworkObjectDestroyer: {fileID: 0}
 --- !u!114 &5448218515967000959
 MonoBehaviour:
   m_ObjectHideFlags: 0

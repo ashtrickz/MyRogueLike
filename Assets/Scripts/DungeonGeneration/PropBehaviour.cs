@@ -48,13 +48,6 @@ namespace DungeonGeneration
             {
                 OnDeathAction += action.OnInvoke;
             }
-            //
-            // OnDeathAction += Die;
-            if (isServer)
-            {
-                NetworkServer.Spawn(gameObject, connectionToClient);
-                gameObject.GetComponent<NetworkIdentity>().AssignClientAuthority(connectionToClient);
-            }
         }
 
         // private void Die(GameObject obj)

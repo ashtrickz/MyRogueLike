@@ -24,6 +24,12 @@ public class RogueNetworkManager : NetworkManager
         if (Instance == null) Instance = this;
         else Destroy(this.gameObject);
     }
+
+    public override void Start()
+    {
+        base.Start();
+    }
+    
     public override void OnStartServer()
     {
         base.OnStartServer();

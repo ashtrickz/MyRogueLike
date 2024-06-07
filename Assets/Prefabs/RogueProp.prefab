@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 2887718277782899550}
   - component: {fileID: 4628541818921683587}
   m_Layer: 20
-  m_Name: Prop
+  m_Name: RogueProp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -59,6 +59,9 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   propCollider: {fileID: 1225963085737086737}
   rigidbodyData: {fileID: 2702343104467243819}
   propSprite: {fileID: 3898234403518802238}

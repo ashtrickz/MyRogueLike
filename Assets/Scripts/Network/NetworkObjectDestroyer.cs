@@ -1,23 +1,29 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using Mirror;
 using UnityEngine;
 
 public class NetworkObjectDestroyer : NetworkBehaviour
 {
-    [Client]
-    public void TellServerToDestroyObject(GameObject obj)
+
+    public static NetworkObjectDestroyer Instance { get; private set; }
+
+    public void Awake()
     {
-        if (isServer)
-        {
-            NetworkServer.Destroy(obj);
-            return;
-        }
-        AskToDestroyCmd(obj);
+        if (Instance == null) Instance = this;
     }
 
-    [Command]
-    public void AskToDestroyCmd(GameObject obj)
+
+    [Server]
+    public void DestroyObjectServerRpc(GameObject obj)
     {
-        if (!isClient) NetworkServer.Destroy(obj);
+        DestroyObjectClientRpc(obj);
+    }
+
+    [ClientRpc]
+    public void DestroyObjectClientRpc(GameObject obj)
+    {
+        NetworkServer.Destroy(obj);
+        Destroy(obj);
     }
 }

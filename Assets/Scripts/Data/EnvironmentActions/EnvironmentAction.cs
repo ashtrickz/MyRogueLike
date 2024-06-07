@@ -1,4 +1,5 @@
 ﻿using System;
+using Mirror;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
