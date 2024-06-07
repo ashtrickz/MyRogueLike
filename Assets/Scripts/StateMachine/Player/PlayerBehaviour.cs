@@ -12,45 +12,41 @@ namespace StateMachine.Player
 {
     public class PlayerBehaviour : StateMachineCore
     {
-        [Space, Header("Required States")]
-        public IdleState IdleState;
+        [Space, Header("Required States")] public IdleState IdleState;
         public RunState RunState;
         public AttackState AttackState;
         public HitState HitState;
 
-        [Space, Header("References")] 
-        public Animator WeaponAnimator;
+        [Space, Header("References")] public Animator WeaponAnimator;
         public Action OnPlayerHit;
         [SerializeField] private SpriteRenderer playerSprite;
 
-        [SyncVar]
-        public Color PlayerColor;
         public PlayerControls PlayerControls { get; private set; }
 
-#region Mono Logic
+        #region Mono Logic
 
         private void Start()
         {
             if (!isLocalPlayer) return;
 
             Player = this;
-        
-            var camera = FindObjectOfType<CinemachineVirtualCamera>(); //TODO get camera from some kind of singleton or else
+
+            //TODO get camera from some kind of singleton or else
+            var camera = FindObjectOfType<CinemachineVirtualCamera>(); 
             camera.Follow = transform;
 
             PlayerControls = new();
             PlayerControls.Enable();
 
             OnPlayerHit += OnPlayerHitCallback;
-            
-            SetupInstances(new []{(BaseState)IdleState, RunState, AttackState, HitState});
+
+            SetupInstances(new[] {(BaseState) IdleState, RunState, AttackState, HitState});
             StateMachine.SwitchState(IdleState);
-            
+
             // Networking
 
             ChangePlayersColorCmd();
             GenerateDungeonCmd();
-
         }
 
         private void Update()
@@ -58,12 +54,12 @@ namespace StateMachine.Player
             if (!isLocalPlayer) return;
 
             CheckAttack();
-        
+
             if (CurrentState.IsComplete)
             {
                 StateMachine.SwitchState(IdleState);
             }
-        
+
             CurrentState.TickBranch();
         }
 
@@ -72,7 +68,7 @@ namespace StateMachine.Player
             if (!isLocalPlayer) return;
 
             CurrentState.FixedTickBranch();
-        
+
             if (MovePressed && CurrentState.IsComplete) StateMachine.SwitchState(RunState);
         }
 
@@ -90,34 +86,34 @@ namespace StateMachine.Player
             StateMachine.SwitchState(HitState);
         }
 
-#endregion
+        #endregion
 
-#region Network Logic
+        #region Network Logic
+
+        // Dungeon Generation
+        
+        [Command]
+        private void GenerateDungeonCmd() => 
+            NetworkDungeonManager.Instance.GenerateDungeonClientRpc();
+
+        // Authority
 
         [Command]
-        public void AddObjectAuthorityCmd(NetworkIdentity netObject)
-        {
+        public void AddObjectAuthorityCmd(NetworkIdentity netObject) =>
             netObject.AssignClientAuthority(connectionToClient);
-        }
 
         [Command]
-        public void RemoveObjectAuthorityCmd(NetworkIdentity netObject)
-        {
+        public void RemoveObjectAuthorityCmd(NetworkIdentity netObject) =>
             netObject.RemoveClientAuthority();
-        }
 
-        [Command]
-        public void GenerateDungeonCmd()
-        {
-            NetworkDungeonManager.Instance.GenerateDungeonClientRpc();   
-        }
-
+        // Change Players Stats
+        
         [Command]
         private void ChangePlayersColorCmd()
         {
             foreach (var connection in NetworkServer.connections)
             {
-                var player =  connection.Value.identity.GetComponent<PlayerBehaviour>();
+                var player = connection.Value.identity.GetComponent<PlayerBehaviour>();
                 var randomColor = UnityEngine.Random.ColorHSV();
                 ChangePlayersColorRpc(player, randomColor);
             }
@@ -128,8 +124,8 @@ namespace StateMachine.Player
         {
             player.playerSprite.color = color;
         }
-        
-#endregion
+
+        #endregion
 
         public bool MovePressed => PlayerControls.Player.Move.IsPressed();
 
@@ -145,16 +141,15 @@ namespace StateMachine.Player
 #if UNITY_EDITOR
             if (!Application.isPlaying || StateMachine == null) return;
             List<BaseState> states = StateMachine.GetActiveStateBranch();
-        
+
             if (states == null || states.Count == 0) return;
-        
+
             Helper.DrawString("Active States: " + string.Join(" > ", states).Replace("Player_", ""),
-                new Vector3(transform.position.x + .02f, transform.position.y + 1.18f, transform.position.z), Color.black);
+                new Vector3(transform.position.x + .02f, transform.position.y + 1.18f, transform.position.z),
+                Color.black);
             Helper.DrawString("Active States: " + string.Join(" > ", states).Replace("Player_", ""),
                 new Vector3(transform.position.x, transform.position.y + 1.2f, transform.position.z), Color.red);
 #endif
         }
-
-
     }
 }

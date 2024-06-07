@@ -12,18 +12,5 @@ public class NetworkObjectDestroyer : NetworkBehaviour
     {
         if (Instance == null) Instance = this;
     }
-
-
-    [Server]
-    public void DestroyObjectServerRpc(GameObject obj)
-    {
-        DestroyObjectClientRpc(obj);
-    }
-
-    [ClientRpc]
-    public void DestroyObjectClientRpc(GameObject obj)
-    {
-        NetworkServer.Destroy(obj);
-        Destroy(obj);
-    }
+    
 }

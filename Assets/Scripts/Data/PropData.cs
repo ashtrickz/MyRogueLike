@@ -15,6 +15,8 @@ public class PropData : SerializedScriptableObject
     [SerializeField] public Sprite shadowSprite;
     [SerializeField] public float durability;
 
+    [SerializeField] public Vector2Int position;
+    
     [SerializeField] public List<EnvironmentAction> OnDeathActions;
     
     private void OnValidate()

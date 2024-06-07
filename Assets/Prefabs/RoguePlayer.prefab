@@ -350,6 +350,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb207dd4c2b9ef341993837d7e2ddce7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  Player: {fileID: 7895250762179104485}
   Damage: 5
   AttackSpeed: 0
   CooldDown: 0

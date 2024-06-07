@@ -5,8 +5,10 @@ using System.Linq;
 using System.Security.Cryptography;
 using DungeonGeneration;
 using Mirror;
+using Org.BouncyCastle.Asn1.Crmf;
 using Sirenix.OdinInspector.Editor.TypeSearch;
 using StateMachine.Player;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
@@ -15,7 +17,9 @@ public class NetworkDungeonManager : NetworkBehaviour
 {
     public static NetworkDungeonManager Instance { get; private set; }
 
-    private List<PropBehaviour> _spawnedPropsList = new();
+
+    private int _roomId = 0;
+    private List<SessionPropData> _spawnedPropsList = new();
 
     private void Awake()
     {
@@ -43,55 +47,59 @@ public class NetworkDungeonManager : NetworkBehaviour
 
     // Props
 
-    [Command]
-    public void SpawnPropsServerRpc(Transform propsParent, List<Vector2> propsPositions)
-    {
-        SpawnPropsClientRpc(propsParent, propsPositions);
-    }
+    //public void SpawnProps(Transform propsParent, List<Vector2> propsPositions) =>
+    //  SpawnPropsCmd(propsParent, propsPositions);
 
-    [ClientRpc]
-    public void SpawnPropsClientRpc(Transform propsParent, List<Vector2> propsPositions)
-    {
-        _spawnedPropsList = new();
 
+    [Server]
+    public void SpawnPropsServer(Transform propsParent, List<Vector2> propsPositions)
+    {
         var root = RootData.RootInstance;
-
-        Dictionary<Vector2, PropData> propsDictionary = new();
 
         foreach (var position in propsPositions)
         {
             var propObject = Instantiate(RogueNetworkManager.singleton.spawnPrefabs[0], propsParent);
-            if (isServer) NetworkServer.Spawn(propObject);
+            NetworkServer.Spawn(propObject);
 
             var prop = propObject.GetComponent<PropBehaviour>();
-            prop.transform.position = (Vector2) position;
+            prop.transform.position = position;
             prop.Init(root.GetRandomPropData());
-            propsDictionary.Add(position, prop.GetData());
-            _spawnedPropsList.Add(prop);
+
+            _spawnedPropsList.Add(new SessionPropData(_roomId, position, prop.GetData(), propObject));
         }
+
+        _roomId++;
     }
 
-    [Command(requiresAuthority = false)]
-    public void DespawnPropsServerRpc()
+    [Server]
+    public void DespawnPropsServer()
     {
-        DespawnPropsClientRpc();
-    }
+        if (_spawnedPropsList.Count == 0) return;
+        
+        _roomId = 0;
 
-    [ClientRpc]
-    private void DespawnPropsClientRpc()
-    {
         foreach (var prop in _spawnedPropsList)
         {
-            if (prop.gameObject == null) continue;
-            NetworkObjectDestroyer.Instance.DestroyObjectServerRpc(prop.gameObject);
+            if (prop.GameObject == null) continue;
+            NetworkServer.Destroy(prop.GameObject);
+            Destroy(prop.GameObject);
         }
+        
+        _spawnedPropsList = new();
     }
 
-    [ClientRpc]
-    public void ChangePlayerColorCmd()
+    public struct SessionPropData
     {
-        var localPlayer = NetworkClient.localPlayer.GetComponent<PlayerBehaviour>();
-        localPlayer.PlayerColor = Random.ColorHSV();
-        localPlayer.PlayerSprite.color = localPlayer.PlayerColor;
+        public int Id;
+        public Vector2 Position;
+        public PropData Data;
+        public GameObject GameObject;
+        public SessionPropData(int id, Vector2 position, PropData data, GameObject gameObject)
+        {
+            Id = id;
+            Position = position;
+            Data = data;
+            GameObject = gameObject;
+        }
     }
 }

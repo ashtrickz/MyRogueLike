@@ -7,7 +7,7 @@ public class SimpleDestroyAction : EnvironmentAction
 {
     public override void OnInvoke(GameObject interactedObject)
     {
-        RogueNetworkManager.Instance.NetworkObjectDestroyer.DestroyObjectServerRpc(interactedObject.gameObject);
+        //NetworkDungeonManager.Instance.DestroyObjectRpc(interactedObject.gameObject);
     }
     
 

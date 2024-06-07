@@ -10,7 +10,7 @@ public interface IDamageable
 
     public Action OnHitTakenAction { get; set; }
     public Action<GameObject> OnDeathAction { get; set; }
-
+    public NetworkIdentity Identity { get; set; }
     public GameObject InteractionGameObject { get; set; }
 
     public void OnHitTaken(float damage)

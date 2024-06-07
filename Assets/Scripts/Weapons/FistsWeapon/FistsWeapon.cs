@@ -9,7 +9,6 @@ public class FistsWeapon : WeaponBase
     {
         base.Attack();
 
-        
         Collider2D[] entities = Physics2D.OverlapCircleAll(transform.position, 1);
         List<IDamageable> damageables = new();
         foreach (var entity in entities)
@@ -21,6 +20,8 @@ public class FistsWeapon : WeaponBase
 
         foreach (var damageable in damageables)
         {
+            damageable.Identity.RemoveClientAuthority();
+            Player.AddObjectAuthorityCmd(damageable.Identity);
             damageable.OnHitTaken(Damage);
         }
     }

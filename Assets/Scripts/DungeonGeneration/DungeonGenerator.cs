@@ -377,7 +377,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
         List<Vector2> propsPositions = FindPropsPositions(minX, maxX, minY, maxY, propCount);
         
-        //NetworkDungeonManager.Instance.SpawnPropsServerRpc(propsParent, propsPositions);
+        NetworkDungeonManager.Instance.SpawnPropsServer(propsParent, propsPositions);
 
         return propsDictionary;
     }
@@ -498,8 +498,8 @@ public class DungeonGenerator : SerializedMonoBehaviour
     {
         floorTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
-
-          NetworkDungeonManager.Instance.DespawnPropsServerRpc();
+        
+        NetworkDungeonManager.Instance.DespawnPropsServer();
     
 
         generationData = ScriptableObject.CreateInstance<DungeonGenerationData>();
