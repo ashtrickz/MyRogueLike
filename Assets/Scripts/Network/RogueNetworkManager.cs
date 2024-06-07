@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using Cinemachine;
 using Mirror;
@@ -33,12 +34,25 @@ public class RogueNetworkManager : NetworkManager
     public override void OnStartServer()
     {
         base.OnStartServer();
+        StartCoroutine(WaitTillPlayersReadyCo());
+    }
+
+    private IEnumerator WaitTillPlayersReadyCo()
+    {
+        yield return new WaitForSeconds(1f);
+        Debug.Log("Time waited");
+        NetworkDungeonManager.Instance.GenerateDungeonCmd();
     }
 
     public override void OnClientConnect()
     {
         base.OnClientConnect();
-        Generator.GenerateDungeon();
+    
+    }
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
     }
 
 }

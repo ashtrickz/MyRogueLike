@@ -10,9 +10,9 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
 
-public class NetworkDungeonGenerationManager : NetworkBehaviour
+public class NetworkDungeonManager : NetworkBehaviour
 {
-    public static NetworkDungeonGenerationManager Instance { get; private set; }
+    public static NetworkDungeonManager Instance { get; private set; }
 
     private List<PropBehaviour> _spawnedPropsList = new();
 
@@ -24,14 +24,25 @@ public class NetworkDungeonGenerationManager : NetworkBehaviour
 
     public DungeonGenerator Generator;
 
-    [ClientRpc]
-    public void GenerateDungeonClientRpc(int seed)
+    // Generation
+
+    [Command(requiresAuthority = false)]
+    public void GenerateDungeonCmd()
     {
-        if (isServer) return;
-        //Generator.GenerateDungeon(seed);
+      GenerateDungeonClientRpc(Generator.CurrentSeed);
+      Debug.Log("Generate Cmd");
     }
 
-    [Server]
+    [ClientRpc]
+    public void GenerateDungeonClientRpc(int seed)
+    {   
+        Generator.GenerateDungeonOnClient(seed);
+        Debug.Log("Generate Client Rpc");
+    }
+
+    // Props
+
+    [Command]
     public void SpawnPropsServerRpc(Transform propsParent, List<Vector2> propsPositions)
     {
         SpawnPropsClientRpc(propsParent, propsPositions);

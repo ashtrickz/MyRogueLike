@@ -22,7 +22,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
     [Title("References", titleAlignment: TitleAlignments.Centered), InlineEditor, SerializeField]
     private LevelTilingPreset tilingPreset;
 
-    [SerializeField] private NetworkDungeonGenerationManager dungeonGenerationManagerClientRpc;
+    [SerializeField] private NetworkDungeonManager networkDungeonManager;
 
     [HorizontalGroup("Tilemaps", .5f), LabelWidth(80), SerializeField]
     private Tilemap floorTilemap, wallTilemap;
@@ -66,7 +66,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
     
     private int _roomCount = 0;
 
-    public void GenerateDungeon(int seed)
+    public void GenerateDungeonOnClient(int seed)
     {
         CurrentSeed = seed;
         
@@ -74,12 +74,12 @@ public class DungeonGenerator : SerializedMonoBehaviour
         
         ClearDungeon();
 
-        GenerateRooms();
+        GenerateRooms(false);
         ConnectAndPaintRooms();
     }
 
     [Button, HorizontalGroup("Generate Dungeon", PaddingLeft = 15f)]
-    public void GenerateDungeon()
+    public void GenerateDungeonOnServer()
     {
         CurrentSeed = GameSeed.GetHashCode();
         Random.InitState(CurrentSeed);
@@ -88,11 +88,9 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
         GenerateRooms();
         ConnectAndPaintRooms();
-
-        //dungeonGenerationManagerClientRpc.GenerateDungeonClientRpc(CurrentSeed);
     }
 
-    private void GenerateRooms()
+    private void GenerateRooms(bool generateProps = true)
     {
         _roomCount = Random.Range(roomCount.x, roomCount.y + 1);
 
@@ -379,7 +377,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
         List<Vector2> propsPositions = FindPropsPositions(minX, maxX, minY, maxY, propCount);
         
-        NetworkDungeonGenerationManager.Instance.SpawnPropsServerRpc(propsParent, propsPositions);
+        NetworkDungeonManager.Instance.SpawnPropsServerRpc(propsParent, propsPositions);
 
         return propsDictionary;
     }
@@ -501,7 +499,8 @@ public class DungeonGenerator : SerializedMonoBehaviour
         floorTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
 
-        NetworkDungeonGenerationManager.Instance.DespawnPropsServerRpc();
+          NetworkDungeonManager.Instance.DespawnPropsServerRpc();
+    
 
         generationData = ScriptableObject.CreateInstance<DungeonGenerationData>();
     }
