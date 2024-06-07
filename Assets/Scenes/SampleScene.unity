@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 1454151}
   - component: {fileID: 1454150}
   m_Layer: 0
-  m_Name: NetworkDungeonGenerationManager
+  m_Name: NetworkDungeonManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -533,7 +533,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   tilingPreset: {fileID: 11400000, guid: 7d38c8fc2f54aed419ebc7aacfe7f876, type: 2}
-  dungeonGenerationManagerClientRpc: {fileID: 1454151}
+  networkDungeonManager: {fileID: 1454151}
   floorTilemap: {fileID: 731701955}
   wallTilemap: {fileID: 1776800698}
   propsParent: {fileID: 429540727}
@@ -965,7 +965,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 584035077}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1454151}
+        m_TargetAssemblyTypeName: NetworkDungeonManager, Assembly-CSharp
+        m_MethodName: GenerateDungeonCmd
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &584035077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1455,7 +1467,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 7340087
 --- !u!114 &1004467376
 MonoBehaviour:
   m_ObjectHideFlags: 0
