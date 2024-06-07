@@ -4,7 +4,9 @@ using Cinemachine;
 using Helpers;
 using Mirror;
 using StateMachine.States;
+using Unity.VisualScripting;
 using UnityEngine;
+using Random = System.Random;
 
 namespace StateMachine.Player
 {
@@ -19,6 +21,10 @@ namespace StateMachine.Player
         [Space, Header("References")] 
         public Animator WeaponAnimator;
         public Action OnPlayerHit;
+        [SerializeField] private SpriteRenderer playerSprite;
+
+        [SyncVar]
+        public Color PlayerColor;
         public PlayerControls PlayerControls { get; private set; }
 
 #region Mono Logic
@@ -40,9 +46,10 @@ namespace StateMachine.Player
             SetupInstances(new []{(BaseState)IdleState, RunState, AttackState, HitState});
             StateMachine.SwitchState(IdleState);
             
-            // Authority
+            // Networking
 
-            AddObjectAuthorityCmd(NetworkDungeonManager.Instance.netIdentity);
+            ChangePlayersColorCmd();
+            GenerateDungeonCmd();
 
         }
 
@@ -99,6 +106,29 @@ namespace StateMachine.Player
             netObject.RemoveClientAuthority();
         }
 
+        [Command]
+        public void GenerateDungeonCmd()
+        {
+            NetworkDungeonManager.Instance.GenerateDungeonClientRpc();   
+        }
+
+        [Command]
+        private void ChangePlayersColorCmd()
+        {
+            foreach (var connection in NetworkServer.connections)
+            {
+                var player =  connection.Value.identity.GetComponent<PlayerBehaviour>();
+                var randomColor = UnityEngine.Random.ColorHSV();
+                ChangePlayersColorRpc(player, randomColor);
+            }
+        }
+
+        [ClientRpc]
+        private void ChangePlayersColorRpc(PlayerBehaviour player, Color color)
+        {
+            player.playerSprite.color = color;
+        }
+        
 #endregion
 
         public bool MovePressed => PlayerControls.Player.Move.IsPressed();
@@ -107,6 +137,7 @@ namespace StateMachine.Player
                                      || PlayerControls.Player.SecondaryAttack.IsPressed()
                                      || PlayerControls.Player.MagicAttack.IsPressed();
 
+        public SpriteRenderer PlayerSprite => playerSprite;
 
 
         void OnDrawGizmos()

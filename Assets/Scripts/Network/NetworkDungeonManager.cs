@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using DungeonGeneration;
 using Mirror;
 using Sirenix.OdinInspector.Editor.TypeSearch;
+using StateMachine.Player;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
@@ -26,17 +27,17 @@ public class NetworkDungeonManager : NetworkBehaviour
 
     // Generation
 
-    [Command()]
-    public void GenerateDungeonCmd()
-    {
-        GenerateDungeonClientRpc(Generator.CurrentSeed);
-        Debug.Log("Generate Cmd");
-    }
+    // [Command()]
+    // public void GenerateDungeonCmd()
+    // {
+    //     GenerateDungeonClientRpc(Generator.CurrentSeed);
+    //     Debug.Log("Generate Cmd");
+    // }
 
     [ClientRpc]
-    public void GenerateDungeonClientRpc(int seed)
+    public void GenerateDungeonClientRpc()
     {
-        Generator.GenerateDungeonOnClient(seed);
+        Generator.GenerateDungeonOnClient(Generator.CurrentSeed);
         Debug.Log("Generate Client Rpc");
     }
 
@@ -84,5 +85,13 @@ public class NetworkDungeonManager : NetworkBehaviour
             if (prop.gameObject == null) continue;
             NetworkObjectDestroyer.Instance.DestroyObjectServerRpc(prop.gameObject);
         }
+    }
+
+    [ClientRpc]
+    public void ChangePlayerColorCmd()
+    {
+        var localPlayer = NetworkClient.localPlayer.GetComponent<PlayerBehaviour>();
+        localPlayer.PlayerColor = Random.ColorHSV();
+        localPlayer.PlayerSprite.color = localPlayer.PlayerColor;
     }
 }

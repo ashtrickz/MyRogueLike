@@ -377,7 +377,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
         List<Vector2> propsPositions = FindPropsPositions(minX, maxX, minY, maxY, propCount);
         
-        NetworkDungeonManager.Instance.SpawnPropsServerRpc(propsParent, propsPositions);
+        //NetworkDungeonManager.Instance.SpawnPropsServerRpc(propsParent, propsPositions);
 
         return propsDictionary;
     }

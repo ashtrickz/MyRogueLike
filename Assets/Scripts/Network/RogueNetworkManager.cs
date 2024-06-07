@@ -5,6 +5,8 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using Cinemachine;
 using Mirror;
+using Mirror.Examples.CCU;
+using StateMachine.Player;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -34,19 +36,12 @@ public class RogueNetworkManager : NetworkManager
     public override void OnStartServer()
     {
         base.OnStartServer();
-        StartCoroutine(WaitTillPlayersReadyCo());
-    }
-
-    private IEnumerator WaitTillPlayersReadyCo()
-    {
-        yield return new WaitForSeconds(1f);
-        Debug.Log("Time waited");
-        NetworkDungeonManager.Instance.GenerateDungeonCmd();
     }
 
     public override void OnClientConnect()
     {
         base.OnClientConnect();
+        
     }
 
     public override void OnStartClient()
