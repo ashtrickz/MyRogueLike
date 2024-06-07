@@ -74,7 +74,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
         
         ClearDungeon();
 
-        GenerateRooms(false);
+        GenerateRooms();
         ConnectAndPaintRooms();
     }
 
@@ -90,7 +90,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
         ConnectAndPaintRooms();
     }
 
-    private void GenerateRooms(bool generateProps = true)
+    private void GenerateRooms()
     {
         _roomCount = Random.Range(roomCount.x, roomCount.y + 1);
 
