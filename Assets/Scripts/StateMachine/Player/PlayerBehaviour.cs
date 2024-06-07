@@ -18,10 +18,10 @@ namespace StateMachine.Player
 
         [Space, Header("References")] 
         public Animator WeaponAnimator;
-        
         public Action OnPlayerHit;
-
         public PlayerControls PlayerControls { get; private set; }
+
+#region Mono Logic
 
         private void Start()
         {
@@ -42,17 +42,10 @@ namespace StateMachine.Player
             
             // Authority
 
-            GetDungeonGeneratorAuthorityCmd();
+            AddObjectAuthorityCmd(NetworkDungeonManager.Instance.netIdentity);
 
         }
 
-        [Command]
-        private void GetDungeonGeneratorAuthorityCmd()
-        {
-            NetworkDungeonManager.Instance.netIdentity.AssignClientAuthority(connectionToClient);
-        }
-        
-        [ClientCallback]
         private void Update()
         {
             if (!isLocalPlayer) return;
@@ -67,7 +60,6 @@ namespace StateMachine.Player
             CurrentState.TickBranch();
         }
 
-        [ClientCallback]
         private void FixedUpdate()
         {
             if (!isLocalPlayer) return;
@@ -77,7 +69,6 @@ namespace StateMachine.Player
             if (MovePressed && CurrentState.IsComplete) StateMachine.SwitchState(RunState);
         }
 
-        [ClientCallback]
         public void PlayStateAnimation(string animationHash) => Animator.Play(animationHash);
 
         private void CheckAttack()
@@ -92,11 +83,30 @@ namespace StateMachine.Player
             StateMachine.SwitchState(HitState);
         }
 
+#endregion
+
+#region Network Logic
+
+        [Command]
+        public void AddObjectAuthorityCmd(NetworkIdentity netObject)
+        {
+            netObject.AssignClientAuthority(connectionToClient);
+        }
+
+        [Command]
+        public void RemoveObjectAuthorityCmd(NetworkIdentity netObject)
+        {
+            netObject.RemoveClientAuthority();
+        }
+
+#endregion
+
         public bool MovePressed => PlayerControls.Player.Move.IsPressed();
 
         public bool AttackPressed => PlayerControls.Player.MainAttack.IsPressed()
                                      || PlayerControls.Player.SecondaryAttack.IsPressed()
                                      || PlayerControls.Player.MagicAttack.IsPressed();
+
 
 
         void OnDrawGizmos()
