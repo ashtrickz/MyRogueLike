@@ -10,7 +10,6 @@ public class PropData : SerializedScriptableObject
 {
     [SerializeField] public string stringId;
     [SerializeField] public Vector2[] colliderPoints;
-    [SerializeField] public Rigidbody2D rigidbodyData;
     [SerializeField] public Sprite propSprite;
     [SerializeField] public Sprite shadowSprite;
     [SerializeField] public float durability;

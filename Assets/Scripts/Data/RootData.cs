@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using DungeonGeneration;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -44,5 +45,9 @@ public class RootData : SerializedScriptableObject
     public PropBehaviour PropPrefab;
     public List<PropData> PropsList = new();
 
-    public PropData GetRandomPropData() => PropsList[Random.Range(0, PropsList.Count)];
+    public PropData GetRandomPropData() => 
+        PropsList[Random.Range(0, PropsList.Count)];
+
+    public PropData GetPropDataByStringId(string propDataStringId) =>
+        PropsList.Single(s => s.stringId == propDataStringId);
 }

@@ -63,43 +63,52 @@ public class NetworkDungeonManager : NetworkBehaviour
 
             var prop = propObject.GetComponent<PropBehaviour>();
             prop.transform.position = position;
-            prop.Init(root.GetRandomPropData());
 
-            _spawnedPropsList.Add(new SessionPropData(_roomId, position, prop.GetData(), propObject));
+            _spawnedPropsList.Add(new SessionPropData(_roomId, position, prop, root.GetRandomPropData().stringId));
         }
 
         _roomId++;
+
+        InitialisePropsRpc(_spawnedPropsList);
     }
 
     [Server]
     public void DespawnPropsServer()
     {
         if (_spawnedPropsList.Count == 0) return;
-        
+
         _roomId = 0;
 
         foreach (var prop in _spawnedPropsList)
         {
-            if (prop.GameObject == null) continue;
-            NetworkServer.Destroy(prop.GameObject);
-            Destroy(prop.GameObject);
+            if (prop.Behaviour.gameObject == null) continue;
+            NetworkServer.Destroy(prop.Behaviour.gameObject);
+            Destroy(prop.Behaviour.gameObject);
         }
-        
+
         _spawnedPropsList = new();
+    }
+
+    [ClientRpc]
+    private void InitialisePropsRpc(List<SessionPropData> props)
+    {
+        foreach (var propData in props)
+            propData.Behaviour.Init(RootData.RootInstance.GetPropDataByStringId(propData.StringId));
     }
 
     public struct SessionPropData
     {
         public int Id;
         public Vector2 Position;
-        public PropData Data;
-        public GameObject GameObject;
-        public SessionPropData(int id, Vector2 position, PropData data, GameObject gameObject)
+        public PropBehaviour Behaviour;
+        public string StringId;
+
+        public SessionPropData(int id, Vector2 position, PropBehaviour behaviour, string stringId)
         {
             Id = id;
             Position = position;
-            Data = data;
-            GameObject = gameObject;
+            Behaviour = behaviour;
+            StringId = stringId;
         }
     }
 }
