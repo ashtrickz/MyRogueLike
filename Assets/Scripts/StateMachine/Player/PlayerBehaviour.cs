@@ -116,7 +116,8 @@ namespace StateMachine.Player
             foreach (var connection in NetworkServer.connections)
             {
                 var player = connection.Value.identity.GetComponent<PlayerBehaviour>();
-                var randomColor = UnityEngine.Random.ColorHSV();
+                var randomColor = UnityEngine.Random.ColorHSV() * 4;
+
                 ChangePlayersColorRpc(player, randomColor);
             }
         }

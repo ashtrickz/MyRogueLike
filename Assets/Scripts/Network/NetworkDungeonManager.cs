@@ -44,10 +44,6 @@ public class NetworkDungeonManager : NetworkBehaviour
 
     // Props
 
-    //public void SpawnProps(Transform propsParent, List<Vector2> propsPositions) =>
-    //  SpawnPropsCmd(propsParent, propsPositions);
-
-
     public void SpawnProps(Transform propsParent, List<Vector2> propsPositions){
         if (isServer) SpawnPropsCmd(propsParent, propsPositions);
     }
