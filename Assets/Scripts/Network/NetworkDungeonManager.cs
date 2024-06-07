@@ -48,9 +48,14 @@ public class NetworkDungeonManager : NetworkBehaviour
     //  SpawnPropsCmd(propsParent, propsPositions);
 
 
-    [Server]
-    public void SpawnPropsServer(Transform propsParent, List<Vector2> propsPositions)
+    public void SpawnProps(Transform propsParent, List<Vector2> propsPositions){
+        if (isServer) SpawnPropsCmd(propsParent, propsPositions);
+    }
+
+    [Command(requiresAuthority = false)]
+    public void SpawnPropsCmd(Transform propsParent, List<Vector2> propsPositions)
     {
+
         var root = RootData.RootInstance;
 
         foreach (var position in propsPositions)
@@ -72,7 +77,7 @@ public class NetworkDungeonManager : NetworkBehaviour
     [Server]
     public void DespawnPropsServer()
     {
-        if (_spawnedPropsList.Count == 0) return;
+        //if (_spawnedPropsList.Count == 0) return;
 
         _roomId = 0;
 
