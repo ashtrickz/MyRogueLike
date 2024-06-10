@@ -20,8 +20,8 @@ public class FistsWeapon : WeaponBase
 
         foreach (var damageable in damageables)
         {
-            damageable.Identity.RemoveClientAuthority();
-            Player.AddObjectAuthorityCmd(damageable.Identity);
+            // Player.RemoveObjectAuthority(damageable.Identity);
+            // Player.AddObjectAuthority(damageable.Identity);
             damageable.OnHitTaken(Damage);
         }
     }

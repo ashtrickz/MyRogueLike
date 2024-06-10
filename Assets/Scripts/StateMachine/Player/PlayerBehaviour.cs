@@ -103,13 +103,13 @@ namespace StateMachine.Player
 
         // Authority
 
-        [Command]
-        public void AddObjectAuthorityCmd(NetworkIdentity netObject) =>
-            netObject.AssignClientAuthority(connectionToClient);
-
-        [Command]
-        public void RemoveObjectAuthorityCmd(NetworkIdentity netObject) =>
-            netObject.RemoveClientAuthority();
+        // [Command(requiresAuthority = false)]
+        // public void AddObjectAuthorityCmd(NetworkIdentity netObject) =>
+        //     netObject.AssignClientAuthority(connectionToClient);
+        //
+        // [Command(requiresAuthority = false)]
+        // public void RemoveObjectAuthorityCmd(NetworkIdentity netObject) =>
+        //     netObject.RemoveClientAuthority();
 
         // Change Players Stats
         
@@ -141,6 +141,15 @@ namespace StateMachine.Player
 
         public SpriteRenderer PlayerSprite => playerSprite;
 
+
+        public void DestroyNetObjectObject(GameObject interactedObject) => DestroyNetObjectCmd(interactedObject);
+
+        [Command(requiresAuthority = false)]
+        private void DestroyNetObjectCmd(GameObject interactedObject)
+        {
+            if (interactedObject == null) return;
+            NetworkServer.Destroy(interactedObject);
+        }
 
         void OnDrawGizmos()
         {

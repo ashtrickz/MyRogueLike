@@ -45,6 +45,9 @@ namespace DungeonGeneration
             Identity = netIdentity;
             InteractionGameObject = gameObject;
 
+            OnHitTakenAction = null;
+            OnDeathAction = null;
+            
             foreach (var action in data.OnDeathActions)
             {
                 OnDeathAction += action.OnInvoke;

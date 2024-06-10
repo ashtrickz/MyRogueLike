@@ -1,4 +1,7 @@
-﻿using Mirror;
+﻿using System.Security.Cryptography;
+using DungeonGeneration;
+using Mirror;
+using StateMachine.Player;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -7,9 +10,7 @@ public class SimpleDestroyAction : EnvironmentAction
 {
     public override void OnInvoke(GameObject interactedObject)
     {
-        //NetworkDungeonManager.Instance.DestroyObjectRpc(interactedObject.gameObject);
+        NetworkClient.localPlayer.GetComponent<PlayerBehaviour>().DestroyNetObjectObject(interactedObject.gameObject);
     }
-    
-
     
 }
