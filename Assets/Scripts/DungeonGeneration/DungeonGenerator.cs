@@ -34,7 +34,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
     [SerializeField] public string GameSeed = "Default";
     [SerializeField] public int CurrentSeed = 0;
-    
+
     [MinMaxSlider(2, 10), LabelWidth(120f), SerializeField, SuffixLabel("$_roomsCountString")]
     private Vector2Int roomCount = new(5, 7);
 
@@ -63,15 +63,15 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
     public Tilemap FloorTilemap => floorTilemap;
     public Tilemap WallTilemap => wallTilemap;
-    
+
     private int _roomCount = 0;
 
     [Button, HorizontalGroup("Generate Dungeon", PaddingLeft = 15f)]
-    public void GenerateDungeon()
+    public void GenerateDungeon(int seed = -1)
     {
-        CurrentSeed = GameSeed.GetHashCode();
+        CurrentSeed = seed != -1 ? seed : GameSeed.GetHashCode();
         Random.InitState(CurrentSeed);
-        
+
         ClearDungeon();
 
         GenerateRooms();
@@ -237,7 +237,7 @@ public class DungeonGenerator : SerializedMonoBehaviour
 
         return walls;
     }
-    
+
     private void ConnectAndPaintRooms()
     {
         foreach (var roomData in generationData.RoomsDictionary)
@@ -360,13 +360,13 @@ public class DungeonGenerator : SerializedMonoBehaviour
             }
         }
     }
-    
+
     private Dictionary<Vector2, PropData> GenerateProps(int minX, int maxX, int minY, int maxY, int propCount)
     {
         Dictionary<Vector2, PropData> propsDictionary = new();
 
         List<Vector2> propsPositions = FindPropsPositions(minX, maxX, minY, maxY, propCount);
-        
+
         NetworkDungeonManager.Instance.SpawnProps(propsParent, propsPositions);
 
         return propsDictionary;
@@ -389,10 +389,10 @@ public class DungeonGenerator : SerializedMonoBehaviour
             for (int i = minX; i <= maxX; i++)
             {
                 if (i == (minX + maxX) / 2) continue;
-                
+
                 var minValue = new Vector2(i + .5f, minY);
                 var maxValue = new Vector2(i + .5f, maxY);
-                
+
                 if (!potentialPropPositions.Contains(minValue)) potentialPropPositions.Add(minValue);
                 if (!potentialPropPositions.Contains(maxValue)) potentialPropPositions.Add(maxValue);
             }
@@ -488,10 +488,13 @@ public class DungeonGenerator : SerializedMonoBehaviour
     {
         floorTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
-        
+
         NetworkDungeonManager.Instance.DespawnPropsServer();
-    
+
 
         generationData = ScriptableObject.CreateInstance<DungeonGenerationData>();
     }
+
+    public int GenerateSeed() =>
+        CurrentSeed = GameSeed.GetHashCode();
 }

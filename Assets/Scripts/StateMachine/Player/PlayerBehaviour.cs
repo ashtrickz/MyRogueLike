@@ -45,6 +45,8 @@ namespace StateMachine.Player
 
             // Networking
 
+            if (isServer) RogueNetworkManager.Instance.HostPlayer = this;
+             
             ChangePlayersColorCmd();
             GenerateDungeonCmd();
         }
@@ -95,7 +97,8 @@ namespace StateMachine.Player
         [Command]
         private void GenerateDungeonCmd()
         {
-            NetworkDungeonManager.Instance.GenerateDungeonClientRpc();
+            var netDM = NetworkDungeonManager.Instance;
+            netDM.GenerateDungeonClientRpc(netDM.Generator.GenerateSeed());
         }
 
         // Authority

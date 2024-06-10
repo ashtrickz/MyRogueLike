@@ -20,8 +20,8 @@ public class RogueNetworkManager : NetworkManager
     public CinemachineVirtualCamera Camera;
 
     public NetworkObjectDestroyer NetworkObjectDestroyer;
-    
-   
+    public PlayerBehaviour HostPlayer { get; set; }
+
 
     public override void Awake()
     {

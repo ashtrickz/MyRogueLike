@@ -37,9 +37,9 @@ public class NetworkDungeonManager : NetworkBehaviour
     // Generation
 
     [ClientRpc]
-    public void GenerateDungeonClientRpc()
+    public void GenerateDungeonClientRpc(int seed)
     {
-        Generator.GenerateDungeon();
+        Generator.GenerateDungeon(seed);
     }
 
     // Props
