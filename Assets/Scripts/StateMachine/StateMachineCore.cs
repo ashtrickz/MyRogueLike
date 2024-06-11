@@ -10,6 +10,7 @@ namespace StateMachine
     public abstract class StateMachineCore : NetworkBehaviour
     {
         [NonSerialized] public PlayerBehaviour Player;
+        [NonSerialized] public EnemyBehaviour Enemy;
         [Header("Core Data"), SerializeField] public Animator Animator;
         [SerializeField] public AnimationData AnimationData;
 
